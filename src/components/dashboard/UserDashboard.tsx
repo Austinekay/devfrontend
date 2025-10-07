@@ -28,7 +28,7 @@ const UserDashboard = () => {
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { loading: isLoadingShops, execute: fetchShops } = useApiCall(shopService.searchShops);
+  const { loading: isLoadingShops, execute: fetchShops } = useApiCall(shopService.getShops);
 
   useEffect(() => {
     if (!authState.user) {
@@ -49,10 +49,8 @@ const UserDashboard = () => {
         })
       };
       
-      const data = await fetchShops(searchParams);
-      if (data) {
-        setShops(data);
-      }
+      const data = await shopService.getShops();
+      setShops(data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load shops');
       console.error('Error loading shops:', err);

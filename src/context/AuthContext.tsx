@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { AuthState, User, UserRole } from '../types';
-import { mockAuthService } from '../services/mockApi';
+import { authService } from '../services/api';
 
 export interface AuthContextType {
   state: AuthState;
   login: (email: string, password: string) => Promise<{ user: User; token: string }>;
   register: (name: string, email: string, password: string, role?: UserRole) => Promise<{ user: User; token: string }>;
+  googleLogin: () => Promise<void>;
   logout: () => void;
 }
 
@@ -71,6 +72,7 @@ export const AuthContext = createContext<AuthContextType>({
   state: initialState,
   login: async () => ({ user: {} as User, token: '' }),
   register: async () => ({ user: {} as User, token: '' }),
+  googleLogin: async () => {},
   logout: () => {},
 });
 
@@ -94,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       dispatch({ type: 'LOGIN_START' });
-      const data = await mockAuthService.login(email, password);
+      const data = await authService.login(email, password);
       dispatch({ type: 'LOGIN_SUCCESS', payload: data });
       return data; // Return the user data and token
     } catch (error) {
@@ -110,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, password: string, role: UserRole = 'user') => {
     try {
       dispatch({ type: 'REGISTER_START' });
-      const data = await mockAuthService.register(name, email, password, role);
+      const data = await authService.register(name, email, password, role);
       dispatch({ type: 'REGISTER_SUCCESS', payload: data });
       return data; // Return the registration data
     } catch (error) {
@@ -123,6 +125,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const googleLogin = async () => {
+    try {
+      dispatch({ type: 'LOGIN_START' });
+      // Redirect to Google OAuth endpoint
+      window.location.href = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/v1/auth/google`;
+    } catch (error) {
+      dispatch({
+        type: 'LOGIN_FAILURE',
+        payload: error instanceof Error ? error.message : 'Google login failed',
+      });
+      throw error;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
@@ -130,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ state, login, register, logout }}>
+    <AuthContext.Provider value={{ state, login, register, googleLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

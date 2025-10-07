@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, useTheme } from '@mui/material';
-import Navbar from './Navbar';
+import ModernNavbar from './ModernNavbar';
 import { Outlet } from 'react-router-dom';
 
 const Layout = () => {
@@ -16,7 +16,7 @@ const Layout = () => {
         : 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
       backgroundAttachment: 'fixed',
     }}>
-      <Navbar />
+      <ModernNavbar />
       <Box component="main" sx={{
         flexGrow: 1,
         py: 3,

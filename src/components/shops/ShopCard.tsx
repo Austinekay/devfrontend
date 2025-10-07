@@ -8,7 +8,11 @@ interface ShopCardProps {
   onViewDetails?: (shop: Shop) => void;
 }
 
-const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => (
+const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => {
+  console.log('ShopCard - shop data:', shop);
+  console.log('ShopCard - images:', shop.images);
+  
+  return (
   <Card sx={{ 
     display: 'flex', 
     flexDirection: 'column', 
@@ -19,12 +23,28 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => (
       boxShadow: 4,
     }
   }}>
+    {shop.images && shop.images.length > 0 ? (
+      <CardMedia
+        component="img"
+        height="140"
+        image={shop.images[0]}
+        alt={shop.name}
+        sx={{ objectFit: 'cover' }}
+        onError={(e) => {
+          console.log('ShopCard - Image failed to load:', shop.images?.[0]);
+          // Hide the broken image and show fallback
+          e.currentTarget.style.display = 'none';
+          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+          if (fallback) fallback.style.display = 'flex';
+        }}
+      />
+    ) : null}
     <CardMedia
       component="div"
       sx={{
         height: 140,
         bgcolor: 'primary.light',
-        display: 'flex',
+        display: shop.images && shop.images.length > 0 ? 'none' : 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}
@@ -65,6 +85,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => (
       </Button>
     </CardActions>
   </Card>
-);
+  );
+};
 
 export default ShopCard;

@@ -1,149 +1,119 @@
-import React, { useState } from 'react';
-import { Container, Paper, TextField, Button, Typography, Box, Alert, Divider } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Container, Paper, Button, Typography, Box, Alert, TextField, Divider } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import GoogleLogo from '../../assets/google.svg';
-import AppleLogo from '../../assets/apple.svg';
+import { Google } from '@mui/icons-material';
 
 const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login, state: { error: authError, loading, user } } = useAuth();
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const { login, googleLogin, state: { error: authError, loading, user } } = useAuth();
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    // Clear error when user starts typing
-    setError(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    
-    try {
-      const result = await login(formData.email, formData.password);
-      
-      // Navigate based on user role
-      if (result.user.role === 'admin') {
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
         navigate('/admin');
-      } else if (result.user.role === 'shop_owner') {
+      } else if (user.role === 'shop_owner') {
         navigate('/dashboard/shop-owner');
       } else {
         navigate('/dashboard');
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
-      console.error('Login failed:', err);
+    }
+  }, [user, navigate]);
+
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+    } catch (error) {
+      console.error('Google login failed:', error);
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Implement Google login logic here
-    console.log('Google login clicked');
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await login(formData.email, formData.password);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    }
   };
 
-  const handleAppleLogin = () => {
-    // Implement Apple login logic here
-    console.log('Apple login clicked');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null);
   };
 
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
-          Login
+          Sign In
         </Typography>
+        
         {(error || authError) && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 3 }}>
             {error || authError}
           </Alert>
         )}
         
-        {/* Social Login Buttons */}
-        <Box sx={{ mb: 3 }}>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={handleGoogleLogin}
-            sx={{
-              mb: 2,
-              color: 'black',
-              borderColor: '#ddd',
-              '&:hover': {
-                borderColor: '#ccc',
-                backgroundColor: '#f5f5f5'
-              },
-              display: 'flex',
-              gap: 2
-            }}
-          >
-            <img src={GoogleLogo} alt="Google" style={{ width: 20, height: 20 }} />
-            Continue with Google
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={handleAppleLogin}
-            sx={{
-              color: 'black',
-              borderColor: '#ddd',
-              '&:hover': {
-                borderColor: '#ccc',
-                backgroundColor: '#f5f5f5'
-              },
-              display: 'flex',
-              gap: 2
-            }}
-          >
-            <img src={AppleLogo} alt="Apple" style={{ width: 20, height: 20 }} />
-            Continue with Apple
-          </Button>
-        </Box>
-
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          startIcon={<Google />}
+          sx={{
+            py: 2,
+            fontSize: '1.1rem',
+            backgroundColor: '#4285f4',
+            '&:hover': {
+              backgroundColor: '#3367d6'
+            },
+            mb: 3
+          }}
+        >
+          {loading ? 'Signing in...' : 'Continue with Google'}
+        </Button>
+        
         <Divider sx={{ my: 3 }}>or</Divider>
-
-        {/* Email/Password Login Form */}
-        <Box component="form" onSubmit={handleSubmit}>
+        
+        <Box component="form" onSubmit={handleEmailLogin}>
           <TextField
             fullWidth
             label="Email"
             name="email"
             type="email"
-            margin="normal"
             value={formData.email}
             onChange={handleChange}
             required
+            sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
             label="Password"
             name="password"
             type="password"
-            margin="normal"
             value={formData.password}
             onChange={handleChange}
             required
+            sx={{ mb: 3 }}
           />
           <Button
             type="submit"
-            variant="contained"
-            color="primary"
             fullWidth
+            variant="outlined"
             disabled={loading}
-            sx={{ mt: 2 }}
+            sx={{ py: 2 }}
           >
-            Login with Email
+            Sign in with Email
           </Button>
         </Box>
+        
+        <Typography variant="body2" align="center" color="text.secondary" sx={{ mt: 3 }}>
+          By signing in, you agree to our Terms of Service and Privacy Policy
+        </Typography>
       </Paper>
     </Container>
   );

@@ -1,10 +1,14 @@
-import React from 'react';
-import { Container, Typography, Box, Paper, Grid, Button } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Box, Paper, Grid, Button, Chip, Alert } from '@mui/material';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import AIAssistant from '../ai/AIAssistant';
+import LocationMap from '../geospatial/LocationMap';
+import NearbyShops from '../shops/NearbyShops';
 
 const Feature = ({ icon, title, description, onClick }: {
   icon: React.ReactNode;
@@ -57,6 +61,40 @@ const Feature = ({ icon, title, description, onClick }: {
 const Home = () => {
   const navigate = useNavigate();
   const { state: { user } } = useAuth();
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [locationStatus, setLocationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const categories = ['Coffee', 'Restaurant', 'Grocery', 'Pharmacy', 'Electronics', 'Clothing', 'Books'];
+
+  useEffect(() => {
+    console.log('userLocation changed:', userLocation);
+  }, [userLocation]);
+
+  const handleUseMyLocation = () => {
+    console.log('handleUseMyLocation called');
+    setLocationStatus('loading');
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords: [number, number] = [
+            position.coords.latitude,
+            position.coords.longitude
+          ];
+          console.log('Location detected:', coords);
+          setUserLocation(coords);
+          setLocationStatus('success');
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setLocationStatus('error');
+        }
+      );
+    } else {
+      console.error('Geolocation not supported');
+      setLocationStatus('error');
+    }
+  };
 
   const handleGetStarted = () => {
     navigate('/register');
@@ -135,8 +173,74 @@ const Home = () => {
         />
       </Box>
 
+      {/* Location and Category Selection */}
+      <Box sx={{ mt: 6, textAlign: 'center' }}>
+        <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
+          Find Shops Near You
+        </Typography>
+        
+        <Button
+          variant={userLocation ? 'outlined' : 'contained'}
+          startIcon={<MyLocationIcon />}
+          onClick={handleUseMyLocation}
+          disabled={locationStatus === 'loading'}
+          sx={{ mb: 3, mr: 2 }}
+        >
+          {locationStatus === 'loading' ? 'Getting Location...' : 
+           locationStatus === 'success' ? 'Location Found' : 'Use My Location'}
+        </Button>
+        
+        {locationStatus === 'error' && (
+          <Alert severity="error" sx={{ mb: 3, maxWidth: 400, mx: 'auto' }}>
+            Unable to get your location. Please enable location services.
+          </Alert>
+        )}
+        
+        {userLocation && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ mb: 2 }}>Select a category:</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Chip
+                label="All"
+                onClick={() => setSelectedCategory(null)}
+                color={selectedCategory === null ? 'primary' : 'default'}
+                variant={selectedCategory === null ? 'filled' : 'outlined'}
+              />
+              {categories.map((category) => (
+                <Chip
+                  key={category}
+                  label={category}
+                  onClick={() => setSelectedCategory(category)}
+                  color={selectedCategory === category ? 'primary' : 'default'}
+                  variant={selectedCategory === category ? 'filled' : 'outlined'}
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
+        
+        {userLocation ? (
+          <NearbyShops userLocation={userLocation} selectedCategory={selectedCategory} />
+        ) : (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            Location not detected yet
+          </Typography>
+        )}
+      </Box>
+
+      {/* AI Assistant Integration */}
+      <Box sx={{ mt: 6 }}>
+        <Typography variant="h4" align="center" sx={{ mb: 4, fontWeight: 'bold' }}>
+          Try Our AI Assistant
+        </Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 4 }}>
+          <AIAssistant />
+          <LocationMap />
+        </Box>
+      </Box>
+
       <Box sx={{ 
-        mt: 'auto',
+        mt: 6,
         pt: 6,
         display: 'flex',
         flexDirection: 'column',

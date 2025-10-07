@@ -17,8 +17,8 @@ import {
   DialogActions,
   TextField,
 } from '@mui/material';
-import { Edit, Delete, Add } from '@mui/icons-material';
-import { mockShopService } from '../../services/mockApi';
+import { Edit, Delete, Add, CheckCircle } from '@mui/icons-material';
+import { adminService } from '../../services/api';
 import { Shop } from '../../types';
 
 const ShopManagement = () => {
@@ -34,7 +34,7 @@ const ShopManagement = () => {
   const loadShops = async () => {
     try {
       setIsLoading(true);
-      const data = await mockShopService.getAllShops();
+      const data = await adminService.getShops();
       setShops(data);
     } catch (error) {
       console.error('Error loading shops:', error);
@@ -48,12 +48,28 @@ const ShopManagement = () => {
     setIsDialogOpen(true);
   };
 
+  const handleApprove = async (shopId: string) => {
+    if (window.confirm('Are you sure you want to approve this shop?')) {
+      try {
+        console.log('Approving shop:', shopId);
+        const result = await adminService.approveShop(shopId);
+        console.log('Approve result:', result);
+        setShops(prevShops => prevShops.map(shop => 
+          (shop._id || shop.id) === shopId ? { ...shop, approved: true } : shop
+        ));
+        alert('Shop approved successfully!');
+      } catch (error) {
+        console.error('Error approving shop:', error);
+        alert('Failed to approve shop. Please try again.');
+      }
+    }
+  };
+
   const handleDelete = async (shopId: string) => {
     if (window.confirm('Are you sure you want to delete this shop?')) {
       try {
-        // In a real app, you would call an API to delete the shop
-        // await mockShopService.deleteShop(shopId);
-        setShops(shops.filter(shop => shop.id !== shopId));
+        await adminService.deleteShop(shopId);
+        setShops(prevShops => prevShops.filter(shop => (shop._id || shop.id) !== shopId));
       } catch (error) {
         console.error('Error deleting shop:', error);
       }
@@ -65,12 +81,33 @@ const ShopManagement = () => {
     setIsDialogOpen(true);
   };
 
-  const handleSave = async (event: React.FormEvent) => {
+  const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // In a real app, you would call an API to save the shop
-    setIsDialogOpen(false);
-    await loadShops();
+    const formData = new FormData(event.currentTarget);
+    
+    try {
+      const shopData = {
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+        address: formData.get('address') as string,
+        categories: (formData.get('categories') as string).split(',').map(c => c.trim()),
+        ownerId: formData.get('ownerId') as string
+      };
+
+      if (selectedShop) {
+        await adminService.updateShop(selectedShop._id || selectedShop.id!, shopData);
+      } else {
+        await adminService.createShop(shopData);
+      }
+      
+      setIsDialogOpen(false);
+      await loadShops();
+    } catch (error) {
+      console.error('Error saving shop:', error);
+    }
   };
+
+
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -92,21 +129,30 @@ const ShopManagement = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Address</TableCell>
+              <TableCell>Owner</TableCell>
               <TableCell>Categories</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {shops.map((shop) => (
-              <TableRow key={shop.id}>
+              <TableRow key={shop._id || shop.id}>
                 <TableCell>{shop.name}</TableCell>
                 <TableCell>{shop.address}</TableCell>
+                <TableCell>{shop.owner?.name || 'Unknown'}</TableCell>
                 <TableCell>{shop.categories?.join(', ')}</TableCell>
+                <TableCell>{(shop as any).approved ? 'Approved' : 'Pending'}</TableCell>
                 <TableCell>
+                  {!(shop as any).approved && (
+                    <IconButton onClick={() => handleApprove(shop._id || shop.id!)} color="success">
+                      <CheckCircle />
+                    </IconButton>
+                  )}
                   <IconButton onClick={() => handleEdit(shop)} color="primary">
                     <Edit />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(shop.id)} color="error">
+                  <IconButton onClick={() => handleDelete(shop._id || shop.id!)} color="error">
                     <Delete />
                   </IconButton>
                 </TableCell>
@@ -116,6 +162,7 @@ const ShopManagement = () => {
         </Table>
       </TableContainer>
 
+
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} maxWidth="sm" fullWidth>
         <form onSubmit={handleSave}>
           <DialogTitle>
@@ -124,18 +171,21 @@ const ShopManagement = () => {
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}>
               <TextField
+                name="name"
                 label="Shop Name"
                 defaultValue={selectedShop?.name}
                 required
                 fullWidth
               />
               <TextField
+                name="address"
                 label="Address"
                 defaultValue={selectedShop?.address}
                 required
                 fullWidth
               />
               <TextField
+                name="description"
                 label="Description"
                 defaultValue={selectedShop?.description}
                 multiline
@@ -144,9 +194,17 @@ const ShopManagement = () => {
                 fullWidth
               />
               <TextField
+                name="categories"
                 label="Categories"
                 defaultValue={selectedShop?.categories?.join(', ')}
                 helperText="Separate categories with commas"
+                fullWidth
+              />
+              <TextField
+                name="ownerId"
+                label="Owner ID"
+                defaultValue={selectedShop?.ownerId || (selectedShop?.owner as any)?._id}
+                required
                 fullWidth
               />
             </Box>

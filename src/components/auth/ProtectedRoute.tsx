@@ -7,9 +7,10 @@ import { UserRole } from '../../types';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: UserRole;
+  allowedRoles?: UserRole[];
 }
 
-const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requiredRole, allowedRoles }: ProtectedRouteProps) => {
   const { state } = useAuth();
   const location = useLocation();
 
@@ -35,6 +36,11 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
   // Redirect to home if user doesn't have required role
   if (requiredRole && state.user.role !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Redirect to home if user's role is not in allowed roles
+  if (allowedRoles && !allowedRoles.includes(state.user.role)) {
     return <Navigate to="/" replace />;
   }
 

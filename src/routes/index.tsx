@@ -10,8 +10,13 @@ import ShopDetail from '../components/shops/ShopDetail';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
 import ShopOwnerDashboard from '../components/dashboard/ShopOwnerDashboard';
+import AdminDashboard from '../components/admin/AdminDashboard';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRole?: 'user' | 'shop_owner' }> = ({ children, requiredRole }) => {
+const ProtectedRoute: React.FC<{ 
+  children: React.ReactNode; 
+  requiredRole?: 'user' | 'shop_owner' | 'admin';
+  allowedRoles?: ('user' | 'shop_owner' | 'admin')[];
+}> = ({ children, requiredRole, allowedRoles }) => {
   const { state: { user, loading } } = useAuth();
 
   if (loading) {
@@ -27,6 +32,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRole?: 'user
   }
 
   if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 
@@ -48,17 +57,22 @@ const AppRoutes = () => {
             <Dashboard />
           </ProtectedRoute>
         } />
-        <Route path="/shop-owner/dashboard" element={
+        <Route path="/dashboard/shop-owner" element={
           <ProtectedRoute requiredRole="shop_owner">
             <ShopOwnerDashboard />
           </ProtectedRoute>
         } />
-        <Route path="shops" element={
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/shops" element={
           <ProtectedRoute>
             <ShopList />
           </ProtectedRoute>
         } />
-        <Route path="shops/:id" element={
+        <Route path="/shops/:id" element={
           <ProtectedRoute>
             <ShopDetail />
           </ProtectedRoute>

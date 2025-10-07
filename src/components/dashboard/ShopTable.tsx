@@ -11,7 +11,9 @@ import {
   Button,
   Typography,
   Box,
+  Avatar,
 } from '@mui/material';
+import { Store } from '@mui/icons-material';
 import { Shop } from '../../types';
 
 interface ShopTableProps {
@@ -21,11 +23,17 @@ interface ShopTableProps {
 }
 
 const ShopTable = ({ shops, onEdit, onDelete }: ShopTableProps) => {
+  console.log('ShopTable - shops data:', shops);
+  shops.forEach((shop, index) => {
+    console.log(`Shop ${index}:`, shop.name, 'Images:', shop.images);
+  });
+  
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>Image</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
             <TableCell>Address</TableCell>
@@ -35,7 +43,15 @@ const ShopTable = ({ shops, onEdit, onDelete }: ShopTableProps) => {
         </TableHead>
         <TableBody>
           {shops.map((shop) => (
-            <TableRow key={shop.id}>
+            <TableRow key={shop._id || shop.id}>
+              <TableCell>
+                <Avatar
+                  src={shop.images?.[0]}
+                  sx={{ width: 50, height: 50 }}
+                >
+                  <Store />
+                </Avatar>
+              </TableCell>
               <TableCell>{shop.name}</TableCell>
               <TableCell>{shop.description}</TableCell>
               <TableCell>{shop.address}</TableCell>
@@ -54,7 +70,7 @@ const ShopTable = ({ shops, onEdit, onDelete }: ShopTableProps) => {
                   variant="outlined"
                   color="error"
                   size="small"
-                  onClick={() => onDelete(shop.id)}
+                  onClick={() => onDelete(shop._id || shop.id!)}
                 >
                   Delete
                 </Button>

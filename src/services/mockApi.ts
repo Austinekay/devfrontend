@@ -369,8 +369,9 @@ export const mockShopService = {
   deleteShop: async (id: string) => {
     await new Promise(resolve => setTimeout(resolve, 500));
     const shops = getMockShops();
-    const filteredShops = shops.filter((shop: Shop) => shop.id !== id);
+    const filteredShops = shops.filter((shop: Shop) => (shop.id !== id && shop._id !== id));
     saveMockShops(filteredShops);
+    console.log(`Deleted shop ${id}. Remaining shops:`, filteredShops.length);
     return { success: true };
   }
 };

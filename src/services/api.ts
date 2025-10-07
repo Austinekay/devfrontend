@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { Shop } from '../types';
+import { Shop, User } from '../types';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -39,131 +39,192 @@ api.interceptors.response.use(
 
 export const authService = {
   login: async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await api.post('/api/v1/auth/login', { email, password });
     return response.data;
   },
 
-  register: async (name: string, email: string, password: string, role: string = 'shop_owner') => {
-    const response = await api.post('/auth/register', { name, email, password, role });
+  register: async (name: string, email: string, password: string, role: string = 'user') => {
+    const response = await api.post('/api/v1/auth/register', { name, email, password, role });
+    return response.data;
+  },
+
+  googleLogin: () => {
+    window.location.href = `${API_URL}/api/v1/auth/google`;
+  },
+
+  verify: async () => {
+    const response = await api.get('/api/v1/auth/verify');
     return response.data;
   },
 };
 
-// Mock data store
-let mockShops: Shop[] = [
-  {
-    id: '1',
-    name: 'Coffee Shop',
-    description: 'A cozy coffee shop in downtown',
-    location: {
-      type: 'Point',
-      coordinates: [0, 0]
-    },
-    address: '123 Main St',
-    ownerId: '1',
-    categories: ['Cafe', 'Coffee'],
-    openingHours: {
-      monday: { open: '08:00', close: '20:00' },
-      tuesday: { open: '08:00', close: '20:00' },
-      wednesday: { open: '08:00', close: '20:00' },
-      thursday: { open: '08:00', close: '20:00' },
-      friday: { open: '08:00', close: '22:00' },
-      saturday: { open: '09:00', close: '22:00' },
-      sunday: { open: '09:00', close: '18:00' }
-    }
-  },
-  {
-    id: '2',
-    name: 'Book Store',
-    description: 'Your local bookstore with a wide selection',
-    location: {
-      type: 'Point',
-      coordinates: [0, 0]
-    },
-    address: '456 Oak Ave',
-    ownerId: '1',
-    categories: ['Books', 'Stationery'],
-    openingHours: {
-      monday: { open: '09:00', close: '18:00' },
-      tuesday: { open: '09:00', close: '18:00' },
-      wednesday: { open: '09:00', close: '18:00' },
-      thursday: { open: '09:00', close: '18:00' },
-      friday: { open: '09:00', close: '18:00' },
-      saturday: { open: '10:00', close: '17:00' },
-      sunday: { open: '10:00', close: '16:00' }
-    }
-  }
-];
+
 
 export const shopService = {
-  getShops: async () => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockShops;
+  getShops: async (lat?: number, lng?: number, radius?: number, category?: string) => {
+    const params = new URLSearchParams();
+    if (lat) params.append('lat', lat.toString());
+    if (lng) params.append('lng', lng.toString());
+    if (radius) params.append('radius', radius.toString());
+    if (category) params.append('category', category);
+    // Add cache-busting parameter
+    params.append('_t', Date.now().toString());
+    
+    const response = await api.get(`/api/v1/shops?${params}`);
+    return response.data.shops;
   },
 
-  getAllShops: async () => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockShops;
+  searchShops: async (query: string) => {
+    const response = await api.get(`/api/v1/shops?search=${query}`);
+    return response.data.shops;
   },
 
-  createShop: async (shopData: Partial<Shop>) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const newShop: Shop = {
-      id: Date.now().toString(),
-      ownerId: '1',
-      name: shopData.name || '',
-      description: shopData.description || '',
-      location: {
+  createShop: async (shopData: any) => {
+    // Ensure location is in proper GeoJSON format
+    if (shopData.coordinates) {
+      shopData.location = {
         type: 'Point',
-        coordinates: [0, 0]
-      },
-      address: shopData.address || '',
-      categories: shopData.categories || ['General'],
-      openingHours: shopData.openingHours || {
-        monday: { open: '09:00', close: '17:00' },
-        tuesday: { open: '09:00', close: '17:00' },
-        wednesday: { open: '09:00', close: '17:00' },
-        thursday: { open: '09:00', close: '17:00' },
-        friday: { open: '09:00', close: '17:00' },
-        saturday: { open: '10:00', close: '16:00' },
-        sunday: { open: '10:00', close: '16:00' }
-      }
-    };
-    mockShops.push(newShop);
-    return newShop;
+        coordinates: [shopData.coordinates[1], shopData.coordinates[0]] // [lng, lat]
+      };
+      delete shopData.coordinates;
+      delete shopData.latitude;
+      delete shopData.longitude;
+    }
+    const response = await api.post('/api/v1/shops', shopData);
+    return response.data.shop;
   },
 
   getShopById: async (id: string) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const shop = mockShops.find(s => s.id === id);
-    if (!shop) throw new Error('Shop not found');
-    return shop;
+    const response = await api.get(`/api/v1/shops/${id}`);
+    return response.data.shop;
   },
 
   updateShop: async (id: string, shopData: Partial<Shop>) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    mockShops = mockShops.map((shop: Shop) => 
-      shop.id === id ? { ...shop, ...shopData } : shop
-    );
-    const updatedShop = mockShops.find((s: Shop) => s.id === id);
-    if (!updatedShop) throw new Error('Shop not found');
-    return updatedShop;
+    const response = await api.put(`/api/v1/shops/${id}`, shopData);
+    return response.data.shop;
   },
 
   deleteShop: async (id: string) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    mockShops = mockShops.filter((shop: Shop) => shop.id !== id);
-    return { success: true };
+    const response = await api.delete(`/api/v1/shops/${id}`);
+    return response.data;
   },
 
-  searchShops: async (query: string, location?: { lat: number; lng: number }) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockShops.filter((shop: Shop) => 
-      shop.name.toLowerCase().includes(query.toLowerCase()) ||
-      shop.description.toLowerCase().includes(query.toLowerCase())
-    );
+  searchShopsByLocation: async (lat: number, lng: number, radius: number = 5000, category?: string) => {
+    const params = new URLSearchParams({
+      lat: lat.toString(),
+      lng: lng.toString(),
+      radius: radius.toString(),
+      ...(category && { category })
+    });
+    const response = await api.get(`/api/v1/shops/search?${params}`);
+    return response.data.shops;
+  },
+
+  getNearbyShops: async (lat: number, lng: number, radius: number = 2000) => {
+    const params = new URLSearchParams({
+      lat: lat.toString(),
+      lng: lng.toString(),
+      radius: radius.toString()
+    });
+    const response = await api.get(`/api/v1/shops?${params}`);
+    return response.data.shops;
   },
 };
 
+export const userService = {
+  getAllUsers: async () => {
+    const response = await api.get('/api/v1/users');
+    return response.data.users;
+  },
+
+  getCurrentUser: async () => {
+    const response = await api.get('/api/v1/users/me');
+    return response.data.user;
+  },
+
+  getUserById: async (id: string) => {
+    const response = await api.get(`/api/v1/users/${id}`);
+    return response.data.user;
+  },
+
+  createUser: async (userData: {
+    name: string;
+    email: string;
+    password: string;
+    role?: string;
+  }) => {
+    const response = await api.post('/api/v1/users', userData);
+    return response.data.user;
+  },
+
+  updateUser: async (id: string, userData: Partial<User>) => {
+    const response = await api.put(`/api/v1/users/${id}`, userData);
+    return response.data.user;
+  },
+
+  deleteUser: async (id: string) => {
+    const response = await api.delete(`/api/v1/users/${id}`);
+    return response.data;
+  },
+};
+
+const adminService = {
+  getAnalytics: async () => {
+    const response = await api.get('/api/v1/admin/analytics');
+    return response.data;
+  },
+
+  getShops: async () => {
+    const response = await api.get('/api/v1/admin/shops');
+    return response.data.shops;
+  },
+
+  createShop: async (shopData: any) => {
+    const response = await api.post('/api/v1/admin/shops', shopData);
+    return response.data.shop;
+  },
+
+  updateShop: async (shopId: string, shopData: any) => {
+    const response = await api.put(`/api/v1/admin/shops/${shopId}`, shopData);
+    return response.data.shop;
+  },
+
+  deleteShop: async (shopId: string) => {
+    const response = await api.delete(`/api/v1/admin/shops/${shopId}`);
+    return response.data;
+  },
+
+  getReports: async () => {
+    const response = await api.get('/api/v1/admin/reports');
+    return response.data.reports;
+  },
+
+  resolveReport: async (reportId: string, action: string, note?: string) => {
+    const response = await api.put(`/api/v1/admin/reports/${reportId}`, { action, note });
+    return response.data;
+  },
+
+  approveShop: async (shopId: string) => {
+    const response = await api.put(`/api/v1/admin/shops/${shopId}/approve`);
+    return response.data;
+  },
+
+  suspendUser: async (userId: string, suspend: boolean) => {
+    const response = await api.put(`/api/v1/admin/users/${userId}/suspend`, { suspend });
+    return response.data;
+  },
+
+  getSettings: async () => {
+    const response = await api.get('/api/v1/admin/settings');
+    return response.data.settings;
+  },
+
+  updateSettings: async (settings: any) => {
+    const response = await api.put('/api/v1/admin/settings', settings);
+    return response.data;
+  },
+};
+
+export { shopOwnerService } from './shopOwnerService';
+export { adminService };
 export default api;

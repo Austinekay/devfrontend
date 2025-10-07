@@ -51,10 +51,14 @@ const ShopManagement = () => {
   const handleDelete = async (shopId: string) => {
     if (window.confirm('Are you sure you want to delete this shop?')) {
       try {
-        // In a real app, you would call an API to delete the shop
-        setShops(shops.filter(shop => shop.id !== shopId));
+        await mockShopService.deleteShop(shopId);
+        // Update local state immediately and reload to ensure consistency
+        setShops(prevShops => prevShops.filter(shop => (shop._id || shop.id) !== shopId));
+        await loadShops();
       } catch (error) {
         console.error('Error deleting shop:', error);
+        // Reload shops even if there was an error to ensure consistency
+        await loadShops();
       }
     }
   };
@@ -72,7 +76,7 @@ const ShopManagement = () => {
   };
 
   return (
-    <Paper sx={{ p: 2 }}>
+    <Box>
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6">Shop Management</Typography>
         <Button
@@ -97,7 +101,7 @@ const ShopManagement = () => {
           </TableHead>
           <TableBody>
             {shops.map((shop) => (
-              <TableRow key={shop.id}>
+              <TableRow key={shop._id || shop.id}>
                 <TableCell>{shop.name}</TableCell>
                 <TableCell>{shop.address}</TableCell>
                 <TableCell>{shop.categories?.join(', ')}</TableCell>
@@ -105,7 +109,7 @@ const ShopManagement = () => {
                   <IconButton onClick={() => handleEdit(shop)} size="small" color="primary">
                     <Edit />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(shop.id)} size="small" color="error">
+                  <IconButton onClick={() => handleDelete(shop._id || shop.id!)} size="small" color="error">
                     <Delete />
                   </IconButton>
                 </TableCell>
@@ -158,7 +162,7 @@ const ShopManagement = () => {
           </DialogActions>
         </form>
       </Dialog>
-    </Paper>
+    </Box>
   );
 };
 
