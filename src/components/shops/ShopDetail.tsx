@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Typography, Paper, Box, Chip, Card, CardMedia, Button, IconButton } from '@mui/material';
 import { Phone, LocationOn, Schedule, Directions, Navigation } from '@mui/icons-material';
-import { shopService, adminService } from '../../services/api';
+import { shopService } from '../../services/api';
 import { Shop } from '../../types';
 
 const ShopDetail: React.FC = () => {
@@ -24,8 +24,7 @@ const ShopDetail: React.FC = () => {
       console.log('ShopDetail - shop images:', data?.images);
       setShop(data);
       
-      // Track view
-      adminService.trackAnalytics(shopId, 'view');
+      // View tracking is now handled automatically by the backend
     } catch (error) {
       console.error('Error loading shop:', error);
       setShop(null);

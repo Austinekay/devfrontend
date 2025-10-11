@@ -18,6 +18,11 @@ export const shopOwnerService = {
     return response.data;
   },
 
+  createMyShop: async (shopData: any) => {
+    const response = await api.post('/api/v1/shops', shopData);
+    return response.data;
+  },
+
   updateMyShop: async (shopId: string, shopData: any) => {
     const response = await api.put(`/api/v1/shop-owner/shops/${shopId}`, shopData);
     return response.data;
@@ -25,6 +30,16 @@ export const shopOwnerService = {
 
   deleteMyShop: async (shopId: string) => {
     const response = await api.delete(`/api/v1/shop-owner/shops/${shopId}`);
+    return response.data;
+  },
+
+  trackShopClick: async (shopId: string) => {
+    const response = await api.post(`/api/v1/shops/${shopId}/track-click`);
+    return response.data;
+  },
+
+  getShopStatus: async (shopId: string) => {
+    const response = await api.get(`/api/v1/shops/${shopId}/status`);
     return response.data;
   },
 };

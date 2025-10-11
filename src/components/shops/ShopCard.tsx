@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, Typography, CardActions, Button, Box, Chip, CardMedia } from '@mui/material';
 import { LocationOn, AccessTime } from '@mui/icons-material';
 import { Shop } from '../../types';
-import { adminService } from '../../services/api';
+import { shopOwnerService } from '../../services/shopOwnerService';
 
 interface ShopCardProps {
   shop: Shop;
@@ -80,8 +80,12 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => {
       <Button 
         size="small" 
         color="primary"
-        onClick={() => {
-          adminService.trackAnalytics(shop._id || shop.id!, 'click');
+        onClick={async () => {
+          try {
+            await shopOwnerService.trackShopClick(shop._id || shop.id!);
+          } catch (error) {
+            console.error('Error tracking click:', error);
+          }
           onViewDetails?.(shop);
         }}
       >

@@ -13,14 +13,8 @@ import {
   Star as StarIcon,
   Store as StoreIcon,
 } from '@mui/icons-material';
-import { shopOwnerService } from '../../services/api';
-
-interface DashboardStats {
-  dailyVisits: number;
-  dailyClicks: number;
-  totalReviews: number;
-  totalShops: number;
-}
+import { shopOwnerService } from '../../services/shopOwnerService';
+import { DashboardStats } from '../../types';
 
 const ShopOwnerDashboardHome = () => {
   const [stats, setStats] = useState<DashboardStats>({
@@ -29,6 +23,7 @@ const ShopOwnerDashboardHome = () => {
     totalReviews: 0,
     totalShops: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadDashboardData();
@@ -36,10 +31,13 @@ const ShopOwnerDashboardHome = () => {
 
   const loadDashboardData = async () => {
     try {
+      setLoading(true);
       const statsData = await shopOwnerService.getDashboardStats();
       setStats(statsData.stats);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,6 +60,14 @@ const ShopOwnerDashboardHome = () => {
       </CardContent>
     </Card>
   );
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography>Loading dashboard...</Typography>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

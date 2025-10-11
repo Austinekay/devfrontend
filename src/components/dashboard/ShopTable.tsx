@@ -12,17 +12,19 @@ import {
   Typography,
   Box,
   Avatar,
+  Chip,
 } from '@mui/material';
-import { Store } from '@mui/icons-material';
-import { Shop } from '../../types';
+import { Store, Analytics as AnalyticsIcon } from '@mui/icons-material';
+import { Shop, ShopWithAnalytics } from '../../types';
 
 interface ShopTableProps {
-  shops: Shop[];
+  shops: ShopWithAnalytics[];
   onEdit: (shop: Shop) => void;
   onDelete: (shopId: string) => void;
+  onViewAnalytics?: (shop: ShopWithAnalytics) => void;
 }
 
-const ShopTable = ({ shops, onEdit, onDelete }: ShopTableProps) => {
+const ShopTable = ({ shops, onEdit, onDelete, onViewAnalytics }: ShopTableProps) => {
   console.log('ShopTable - shops data:', shops);
   shops.forEach((shop, index) => {
     console.log(`Shop ${index}:`, shop.name, 'Images:', shop.images);
@@ -38,6 +40,7 @@ const ShopTable = ({ shops, onEdit, onDelete }: ShopTableProps) => {
             <TableCell>Description</TableCell>
             <TableCell>Address</TableCell>
             <TableCell>Categories</TableCell>
+            <TableCell>Analytics</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -57,23 +60,45 @@ const ShopTable = ({ shops, onEdit, onDelete }: ShopTableProps) => {
               <TableCell>{shop.address}</TableCell>
               <TableCell>{shop.categories.join(', ')}</TableCell>
               <TableCell>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  size="small"
-                  onClick={() => onEdit(shop)}
-                  sx={{ mr: 1 }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  onClick={() => onDelete(shop._id || shop.id!)}
-                >
-                  Delete
-                </Button>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <Chip size="small" label={`${shop.analytics?.totalViews || 0} views`} color="primary" variant="outlined" />
+                  <Chip size="small" label={`${shop.analytics?.totalClicks || 0} clicks`} color="secondary" variant="outlined" />
+                  <Chip size="small" label={`${shop.analytics?.totalReviews || 0} reviews`} color="success" variant="outlined" />
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      onClick={() => onEdit(shop)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => onDelete(shop._id || shop.id!)}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
+                  {onViewAnalytics && (
+                    <Button
+                      variant="contained"
+                      color="info"
+                      size="small"
+                      startIcon={<AnalyticsIcon />}
+                      onClick={() => onViewAnalytics(shop)}
+                      fullWidth
+                    >
+                      Analytics
+                    </Button>
+                  )}
+                </Box>
               </TableCell>
             </TableRow>
           ))}

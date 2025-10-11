@@ -12,6 +12,8 @@ import {
   Typography,
   Stack,
   IconButton,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import { PhotoCamera, Delete } from '@mui/icons-material';
 import { Shop } from '../../types';
@@ -37,18 +39,45 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
     latitude: 0,
     longitude: 0,
     openingHours: {
-      'monday': { open: '09:00', close: '17:00' },
-      'tuesday': { open: '09:00', close: '17:00' },
-      'wednesday': { open: '09:00', close: '17:00' },
-      'thursday': { open: '09:00', close: '17:00' },
-      'friday': { open: '09:00', close: '17:00' },
-      'saturday': { open: '10:00', close: '16:00' },
-      'sunday': { open: '10:00', close: '16:00' },
+      'monday': { open: '09:00', close: '17:00', isClosed: false },
+      'tuesday': { open: '09:00', close: '17:00', isClosed: false },
+      'wednesday': { open: '09:00', close: '17:00', isClosed: false },
+      'thursday': { open: '09:00', close: '17:00', isClosed: false },
+      'friday': { open: '09:00', close: '17:00', isClosed: false },
+      'saturday': { open: '10:00', close: '16:00', isClosed: false },
+      'sunday': { open: '10:00', close: '16:00', isClosed: false },
     } as Shop['openingHours'],
   });
 
   useEffect(() => {
     if (shop) {
+      console.log('Shop data:', shop);
+      console.log('Shop openingHours:', shop.openingHours);
+      
+      const processedHours = shop.openingHours ? Object.fromEntries(
+        Object.entries(shop.openingHours).map(([day, hours]) => {
+          console.log(`Processing ${day}:`, hours);
+          return [
+            day, 
+            { 
+              open: hours.open || '09:00',
+              close: hours.close || '17:00',
+              isClosed: hours.isClosed ?? false 
+            }
+          ];
+        })
+      ) : {
+        'monday': { open: '09:00', close: '17:00', isClosed: false },
+        'tuesday': { open: '09:00', close: '17:00', isClosed: false },
+        'wednesday': { open: '09:00', close: '17:00', isClosed: false },
+        'thursday': { open: '09:00', close: '17:00', isClosed: false },
+        'friday': { open: '09:00', close: '17:00', isClosed: false },
+        'saturday': { open: '10:00', close: '16:00', isClosed: false },
+        'sunday': { open: '10:00', close: '16:00', isClosed: false },
+      };
+      
+      console.log('Processed hours:', processedHours);
+      
       setFormData({
         name: shop.name,
         description: shop.description,
@@ -60,15 +89,7 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
         coordinates: shop.location?.coordinates || [0, 0],
         latitude: shop.location?.coordinates?.[1] || 0,
         longitude: shop.location?.coordinates?.[0] || 0,
-        openingHours: shop.openingHours || {
-          'monday': { open: '09:00', close: '17:00' },
-          'tuesday': { open: '09:00', close: '17:00' },
-          'wednesday': { open: '09:00', close: '17:00' },
-          'thursday': { open: '09:00', close: '17:00' },
-          'friday': { open: '09:00', close: '17:00' },
-          'saturday': { open: '10:00', close: '16:00' },
-          'sunday': { open: '10:00', close: '16:00' },
-        },
+        openingHours: processedHours,
       });
     } else {
       setFormData({
@@ -83,13 +104,13 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
         latitude: 0,
         longitude: 0,
         openingHours: {
-          'monday': { open: '09:00', close: '17:00' },
-          'tuesday': { open: '09:00', close: '17:00' },
-          'wednesday': { open: '09:00', close: '17:00' },
-          'thursday': { open: '09:00', close: '17:00' },
-          'friday': { open: '09:00', close: '17:00' },
-          'saturday': { open: '10:00', close: '16:00' },
-          'sunday': { open: '10:00', close: '16:00' },
+          'monday': { open: '09:00', close: '17:00', isClosed: false },
+          'tuesday': { open: '09:00', close: '17:00', isClosed: false },
+          'wednesday': { open: '09:00', close: '17:00', isClosed: false },
+          'thursday': { open: '09:00', close: '17:00', isClosed: false },
+          'friday': { open: '09:00', close: '17:00', isClosed: false },
+          'saturday': { open: '10:00', close: '16:00', isClosed: false },
+          'sunday': { open: '10:00', close: '16:00', isClosed: false },
         },
       });
     }
@@ -371,10 +392,30 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
                 Working Hours
               </Typography>
               {Object.entries(formData.openingHours).map(([day, hours]) => (
-                <Box key={day} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                  <Typography sx={{ minWidth: 100, textTransform: 'capitalize' }}>
+                <Box key={day} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1, p: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                  <Typography sx={{ minWidth: 100, textTransform: 'capitalize', fontWeight: 500 }}>
                     {day}
                   </Typography>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={!(hours.isClosed ?? false)}
+                        onChange={(e) => {
+                          const isOpen = e.target.checked;
+                          setFormData(prev => ({
+                            ...prev,
+                            openingHours: {
+                              ...prev.openingHours,
+                              [day]: { ...prev.openingHours[day], isClosed: !isOpen }
+                            }
+                          }));
+                        }}
+                        size="small"
+                      />
+                    }
+                    label={(hours.isClosed ?? false) ? 'Closed' : 'Open'}
+                    sx={{ minWidth: 80 }}
+                  />
                   <TextField
                     type="time"
                     label="Open"
@@ -389,6 +430,8 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
                       }));
                     }}
                     size="small"
+                    disabled={hours.isClosed ?? false}
+                    sx={{ opacity: (hours.isClosed ?? false) ? 0.5 : 1 }}
                   />
                   <TextField
                     type="time"
@@ -404,6 +447,8 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
                       }));
                     }}
                     size="small"
+                    disabled={hours.isClosed ?? false}
+                    sx={{ opacity: (hours.isClosed ?? false) ? 0.5 : 1 }}
                   />
                 </Box>
               ))}

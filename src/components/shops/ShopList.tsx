@@ -14,6 +14,7 @@ import { Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import ShopCard from './ShopCard';
 import { shopService } from '../../services/api';
+import { shopOwnerService } from '../../services/shopOwnerService';
 import { Shop } from '../../types';
 
 const ShopList = () => {
@@ -160,7 +161,12 @@ const ShopList = () => {
   // Remove client-side filtering since we're doing server-side search
   const filteredShops = shops;
 
-  const handleViewDetails = (shop: Shop) => {
+  const handleViewDetails = async (shop: Shop) => {
+    try {
+      await shopOwnerService.trackShopClick(shop._id || shop.id!);
+    } catch (error) {
+      console.error('Error tracking click:', error);
+    }
     navigate(`/shops/${shop._id || shop.id}`);
   };
 

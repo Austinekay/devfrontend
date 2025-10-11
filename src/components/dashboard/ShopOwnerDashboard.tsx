@@ -5,14 +5,16 @@ import { useAuth } from '../../context/AuthContext';
 import ShopOwnerDashboardHome from './ShopOwnerDashboardHome';
 import ShopTable from './ShopTable';
 import ShopFormDialog from './ShopFormDialog';
+import ShopAnalytics from './ShopAnalytics';
 import { shopService, shopOwnerService } from '../../services/api';
-import { Shop } from '../../types';
+import { Shop, ShopWithAnalytics } from '../../types';
 
 const ShopOwnerDashboard = () => {
   const navigate = useNavigate();
   const { state: authState } = useAuth();
   const [tabValue, setTabValue] = useState(0);
-  const [shops, setShops] = useState<Shop[]>([]);
+  const [shops, setShops] = useState<ShopWithAnalytics[]>([]);
+  const [selectedShopForAnalytics, setSelectedShopForAnalytics] = useState<ShopWithAnalytics | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedShop, setSelectedShop] = useState<Shop | undefined>(undefined);
   const [loading, setLoading] = useState(true);
@@ -96,6 +98,7 @@ const ShopOwnerDashboard = () => {
         <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)} sx={{ mb: 3 }}>
           <Tab label="Dashboard" />
           <Tab label="My Shops" />
+          <Tab label="Analytics" />
           <Tab label="Reviews" />
         </Tabs>
       </Container>
@@ -137,12 +140,51 @@ const ShopOwnerDashboard = () => {
               shops={shops}
               onEdit={handleEditShop}
               onDelete={handleDeleteShop}
+              onViewAnalytics={(shop) => {
+                setSelectedShopForAnalytics(shop);
+                setTabValue(2);
+              }}
             />
           )}
         </Container>
       )}
 
       {tabValue === 2 && (
+        <Container maxWidth="lg">
+          {selectedShopForAnalytics ? (
+            <Box>
+              <Button 
+                variant="outlined" 
+                onClick={() => setSelectedShopForAnalytics(null)}
+                sx={{ mb: 2 }}
+              >
+                ← Back to Shop Selection
+              </Button>
+              <ShopAnalytics 
+                shopId={selectedShopForAnalytics._id || selectedShopForAnalytics.id!}
+                shopName={selectedShopForAnalytics.name}
+              />
+            </Box>
+          ) : (
+            <Box>
+              <Typography variant="h4" sx={{ mb: 4 }}>
+                Shop Analytics
+              </Typography>
+              <Typography color="text.secondary" sx={{ mb: 3 }}>
+                Select a shop from the table below to view detailed analytics:
+              </Typography>
+              <ShopTable
+                shops={shops}
+                onEdit={handleEditShop}
+                onDelete={handleDeleteShop}
+                onViewAnalytics={(shop) => setSelectedShopForAnalytics(shop)}
+              />
+            </Box>
+          )}
+        </Container>
+      )}
+
+      {tabValue === 3 && (
         <Container maxWidth="lg">
           <Typography variant="h4" sx={{ mb: 4 }}>
             Customer Reviews

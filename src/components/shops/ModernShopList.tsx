@@ -35,6 +35,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { shopService } from '../../services/api';
+import { shopOwnerService } from '../../services/shopOwnerService';
 import { Shop } from '../../types';
 import ShopRecommendations from './ShopRecommendations';
 import NearbyShops from './NearbyShops';
@@ -153,7 +154,14 @@ const ModernShopList = () => {
           boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
         },
       }}
-      onClick={() => navigate(`/shops/${shop._id || shop.id}`)}
+      onClick={async () => {
+        try {
+          await shopOwnerService.trackShopClick(shop._id || shop.id!);
+        } catch (error) {
+          console.error('Error tracking click:', error);
+        }
+        navigate(`/shops/${shop._id || shop.id}`);
+      }}
     >
       {shop.images && shop.images.length > 0 ? (
         <CardMedia
@@ -251,8 +259,13 @@ const ModernShopList = () => {
           <Button
             size="small"
             startIcon={<DirectionsIcon />}
-            onClick={(e) => {
+            onClick={async (e) => {
               e.stopPropagation();
+              try {
+                await shopOwnerService.trackShopClick(shop._id || shop.id!);
+              } catch (error) {
+                console.error('Error tracking click:', error);
+              }
               navigate(`/shops/${shop._id || shop.id}`);
             }}
             sx={{ minWidth: 'auto' }}
