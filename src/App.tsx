@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
-import { NotificationProvider } from './context/NotificationContext';
+
 import theme from './theme/theme';
 import Layout from './components/layout/Layout';
 import LandingHome from './components/pages/LandingHome';
@@ -17,6 +17,8 @@ import ModernShopList from './components/shops/ModernShopList';
 import ShopDetail from './components/shops/ShopDetail';
 import AdminDashboard from './components/admin/AdminDashboard';
 import GoogleCallback from './components/auth/GoogleCallback';
+import AIRecommendationsPage from './components/pages/AIRecommendationsPage';
+
 
 // Create theme context
 export const ColorModeContext = React.createContext({
@@ -43,9 +45,8 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <NotificationProvider>
           <AuthProvider>
-          <Router>
+            <Router>
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<LandingHome />} />
@@ -55,6 +56,7 @@ function App() {
                 <Route path="/auth/google/callback" element={<GoogleCallback />} />
                 <Route path="/shops" element={<ModernShopList />} />
                 <Route path="/shops/:id" element={<ShopDetail />} />
+                <Route path="/ai-recommendations" element={<AIRecommendationsPage />} />
                 <Route
                   path="/admin"
                   element={
@@ -83,7 +85,6 @@ function App() {
             </Routes>
           </Router>
           </AuthProvider>
-        </NotificationProvider>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

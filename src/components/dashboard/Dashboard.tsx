@@ -15,13 +15,16 @@ import {
   Divider,
   Skeleton,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { useAuth } from '../../context/AuthContext';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import StarIcon from '@mui/icons-material/Star';
 import HistoryIcon from '@mui/icons-material/History';
 import AddIcon from '@mui/icons-material/Add';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useNavigate } from 'react-router-dom';
+
 
 const StatCard = ({ icon, title, value, color }: {
   icon: React.ReactNode;
@@ -118,7 +121,7 @@ const Dashboard = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4}}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
           Welcome back, {user.name}!
@@ -173,13 +176,13 @@ const Dashboard = () => {
         display="grid" 
         gridTemplateColumns={{
           xs: '1fr',
-          md: '2fr 1fr'
+          md: '1fr 1fr'
         }}
         gap={3}
         mt={3}
       >
         {/* Recent Activity */}
-        <Card>
+        <Card sx={{ height: '100%' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Recent Activity
@@ -217,7 +220,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
+        <Card sx={{ height: '100%' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
               Quick Actions
@@ -247,9 +250,20 @@ const Dashboard = () => {
               >
                 My Reviews
               </Button>
+              <Button
+                variant="contained"
+                startIcon={<SmartToyIcon />}
+                color="primary"
+                fullWidth
+                sx={{ mt: 1 }}
+              >
+                AI Assistant
+              </Button>
             </Box>
           </CardContent>
         </Card>
+
+
       </Box>
     </Container>
   );

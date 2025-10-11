@@ -33,6 +33,8 @@ const categories = [
   { name: 'Electronics', icon: <ShoppingIcon />, color: '#06B6D4' },
   { name: 'Health', icon: <HealthIcon />, color: '#10B981' },
   { name: 'Services', icon: <ServicesIcon />, color: '#F59E0B' },
+  { name: 'Beauty', icon: <ServicesIcon />, color: '#E91E63' },
+  { name: 'Automotive', icon: <ServicesIcon />, color: '#FF5722' },
 ];
 
 const LandingHome = () => {

@@ -7,6 +7,7 @@ import Register from '../components/auth/Register';
 import Dashboard from '../components/dashboard/Dashboard';
 import ShopList from '../components/shops/ShopList';
 import ShopDetail from '../components/shops/ShopDetail';
+import AIRecommendationsPage from '../components/pages/AIRecommendationsPage';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
 import ShopOwnerDashboard from '../components/dashboard/ShopOwnerDashboard';
@@ -52,7 +53,7 @@ const AppRoutes = () => {
         <Route path="/register" element={<Register />} />
 
         {/* Protected Routes */}
-        <Route path="dashboard" element={
+        <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
@@ -75,6 +76,11 @@ const AppRoutes = () => {
         <Route path="/shops/:id" element={
           <ProtectedRoute>
             <ShopDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/ai-recommendations" element={
+          <ProtectedRoute>
+            <AIRecommendationsPage />
           </ProtectedRoute>
         } />
 

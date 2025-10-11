@@ -19,7 +19,8 @@ const Layout = () => {
       <ModernNavbar />
       <Box component="main" sx={{
         flexGrow: 1,
-        py: 3,
+        pt: 10,
+        pb: 3,
         background: theme.palette.mode === 'light'
           ? 'rgba(255,255,255,0.9)'
           : 'rgba(30,30,30,0.9)',

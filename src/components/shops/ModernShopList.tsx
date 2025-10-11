@@ -36,6 +36,8 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { shopService } from '../../services/api';
 import { Shop } from '../../types';
+import ShopRecommendations from './ShopRecommendations';
+import NearbyShops from './NearbyShops';
 
 const categories = ['Food', 'Fashion', 'Electronics', 'Health', 'Services', 'Beauty', 'Automotive'];
 
@@ -54,10 +56,17 @@ const ModernShopList = () => {
     rating: [0, 5],
     distance: [0, 10],
   });
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [showAIRecommendations, setShowAIRecommendations] = useState(false);
 
   useEffect(() => {
     loadShops();
+    // Check if user came with location parameters
+    const lat = searchParams.get('lat');
+    const lng = searchParams.get('lng');
+    if (lat && lng) {
+      setUserLocation([parseFloat(lat), parseFloat(lng)]);
+    }
   }, []);
 
   useEffect(() => {
@@ -96,7 +105,8 @@ const ModernShopList = () => {
         const filteredShops = approvedShops.filter((shop: any) => {
           console.log('Shop categories:', shop.categories, 'Looking for:', selectedCategory);
           return shop.categories?.some((category: string) => 
-            category.toLowerCase() === selectedCategory.toLowerCase()
+            category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+            selectedCategory.toLowerCase().includes(category.toLowerCase())
           );
         });
         console.log('Filtered shops count:', filteredShops.length);
@@ -307,11 +317,19 @@ const ModernShopList = () => {
           </Box>
 
           {/* Controls */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="body1" color="text.secondary">
               {filteredShops.length} shops found
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Button
+                variant={showAIRecommendations ? 'contained' : 'outlined'}
+                size="small"
+                onClick={() => setShowAIRecommendations(!showAIRecommendations)}
+                sx={{ mr: 2 }}
+              >
+                AI Recommendations
+              </Button>
               <IconButton
                 onClick={() => setViewMode('grid')}
                 color={viewMode === 'grid' ? 'primary' : 'default'}
@@ -326,7 +344,21 @@ const ModernShopList = () => {
               </IconButton>
             </Box>
           </Box>
+
+          {/* AI Recommendations Section */}
+          {showAIRecommendations && (
+            <Box sx={{ mb: 4 }}>
+              <ShopRecommendations userLocation={userLocation} />
+            </Box>
+          )}
         </Box>
+
+        {/* Nearby Shops Section */}
+        {userLocation && (
+          <Box sx={{ mb: 4 }}>
+            <NearbyShops userLocation={userLocation} selectedCategory={selectedCategory} />
+          </Box>
+        )}
 
         {/* Shop Grid */}
         {loading ? (

@@ -11,13 +11,13 @@ import {
   Alert,
   Card,
   CardContent,
+  CircularProgress,
+  Snackbar,
 } from '@mui/material';
-import { Save, Refresh, Security, Notifications, Storage } from '@mui/icons-material';
+import { Save, Refresh, Security, Storage, CheckCircle } from '@mui/icons-material';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: false,
     autoApproveShops: false,
     maintenanceMode: false,
     maxShopsPerUser: 5,
@@ -25,6 +25,8 @@ const Settings = () => {
     backupFrequency: 'daily',
   });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [loading, setLoading] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleSettingChange = (key: string, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -36,10 +38,14 @@ const Settings = () => {
 
   const loadSettings = async () => {
     try {
+      setLoading(true);
       const data = await adminService.getSettings();
-      setSettings(data);
+      setSettings(data.settings || data);
     } catch (error) {
       console.error('Error loading settings:', error);
+      setSaveStatus('error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,16 +54,16 @@ const Settings = () => {
     try {
       await adminService.updateSettings(settings);
       setSaveStatus('saved');
+      setSnackbarOpen(true);
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       setSaveStatus('error');
+      console.error('Error saving settings:', error);
     }
   };
 
   const handleReset = () => {
     setSettings({
-      emailNotifications: true,
-      pushNotifications: false,
       autoApproveShops: false,
       maintenanceMode: false,
       maxShopsPerUser: 5,
@@ -66,9 +72,25 @@ const Settings = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 3 }}>System Settings</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" sx={{ flexGrow: 1 }}>System Settings</Typography>
+        {saveStatus === 'saved' && (
+          <Box sx={{ display: 'flex', alignItems: 'center', color: 'success.main' }}>
+            <CheckCircle sx={{ mr: 1 }} />
+            <Typography variant="body2">Settings saved</Typography>
+          </Box>
+        )}
+      </Box>
       
       {saveStatus === 'saved' && (
         <Alert severity="success" sx={{ mb: 2 }}>
@@ -83,35 +105,7 @@ const Settings = () => {
       )}
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-        {/* Notification Settings */}
-        <Box>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Notifications sx={{ mr: 1 }} />
-                <Typography variant="h6">Notifications</Typography>
-              </Box>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.emailNotifications}
-                    onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
-                  />
-                }
-                label="Email Notifications"
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.pushNotifications}
-                    onChange={(e) => handleSettingChange('pushNotifications', e.target.checked)}
-                  />
-                }
-                label="Push Notifications"
-              />
-            </CardContent>
-          </Card>
-        </Box>
+
 
         {/* Security Settings */}
         <Box>
@@ -191,6 +185,8 @@ const Settings = () => {
             </CardContent>
           </Card>
         </Box>
+
+
       </Box>
 
       {/* Action Buttons */}
@@ -198,9 +194,17 @@ const Settings = () => {
         <Button
           variant="contained"
           color="primary"
-          startIcon={<Save />}
+          startIcon={saveStatus === 'saving' ? <CircularProgress size={20} color="inherit" /> : <Save />}
           onClick={handleSave}
           disabled={saveStatus === 'saving'}
+          sx={{
+            minWidth: '140px',
+            transition: 'all 0.2s',
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              boxShadow: 2
+            }
+          }}
         >
           {saveStatus === 'saving' ? 'Saving...' : 'Save Settings'}
         </Button>
@@ -212,6 +216,21 @@ const Settings = () => {
           Reset to Defaults
         </Button>
       </Box>
+      
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbarOpen(false)} 
+          severity="success" 
+          sx={{ width: '100%' }}
+        >
+          Settings saved successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Paper, TextField, Button, Typography, Box, Alert } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
-import { useNotification } from '../../context/NotificationContext';
+
 import { useNavigate } from 'react-router-dom';
 import { clearUserData } from '../../utils/clearUserData';
 
 const Register = () => {
   const { register, state: { loading, error: authError } } = useAuth();
-  const { addNotification } = useNotification();
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -43,11 +43,7 @@ const Register = () => {
       clearUserData();
       
       const result = await register(formData.name, formData.email, formData.password, 'shop_owner');
-      // Add notification for admin when a shop owner registers
-      addNotification(
-        `New shop owner registration: ${formData.name} (${formData.email})`,
-        'info'
-      );
+
       navigate('/dashboard/shop-owner');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');

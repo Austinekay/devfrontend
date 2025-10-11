@@ -145,6 +145,21 @@ const Home = () => {
         </Typography>
       </Box>
 
+      {/* AI Assistant - Featured prominently */}
+      <Box sx={{ mt: 4, mb: 6, bgcolor: 'primary.main', py: 6, borderRadius: 4 }}>
+        <Container maxWidth="md">
+          <Typography variant="h4" align="center" sx={{ mb: 3, fontWeight: 'bold', color: 'white' }}>
+            🤖 AI Shopping Assistant
+          </Typography>
+          <Typography variant="body1" align="center" sx={{ mb: 4, color: 'rgba(255,255,255,0.9)' }}>
+            Ask our AI to help you find the perfect shops and services
+          </Typography>
+          <Box sx={{ bgcolor: 'white', borderRadius: 2, p: 2 }}>
+            <AIAssistant />
+          </Box>
+        </Container>
+      </Box>
+
       <Box sx={{ 
         display: 'grid',
         gridTemplateColumns: { 
@@ -228,15 +243,12 @@ const Home = () => {
         )}
       </Box>
 
-      {/* AI Assistant Integration */}
+      {/* Location Map */}
       <Box sx={{ mt: 6 }}>
         <Typography variant="h4" align="center" sx={{ mb: 4, fontWeight: 'bold' }}>
-          Try Our AI Assistant
+          Explore Locations
         </Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 4 }}>
-          <AIAssistant />
-          <LocationMap />
-        </Box>
+        <LocationMap />
       </Box>
 
       <Box sx={{ 

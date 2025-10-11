@@ -42,10 +42,10 @@ const ShopList = () => {
     // When category is selected, use location-based search
     if (selectedCategory) {
       loadShopsByLocation();
-    } else if (selectedCategory === null) {
+    } else {
       loadInitialShops();
     }
-  }, [selectedCategory, userLocation]);
+  }, [selectedCategory, userLocation, searchTerm]);
 
   const getUserLocation = () => {
     if (!navigator.geolocation) {
@@ -108,9 +108,9 @@ const ShopList = () => {
       setLoading(true);
       setError(null);
       
-      // Get first 10 shops without location filter
-      const data = await shopService.getShops();
-      setShops(data.slice(0, 10));
+      // Get shops with search term if provided
+      const data = await shopService.getShops(undefined, undefined, undefined, undefined, searchTerm || undefined);
+      setShops(data);
     } catch (error) {
       console.error('Error loading shops:', error);
       setError('Failed to load shops.');
@@ -157,14 +157,8 @@ const ShopList = () => {
     }
   };
 
-  const filteredShops = shops.filter(shop => {
-    const matchesSearch = 
-      shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shop.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shop.address.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesSearch;
-  });
+  // Remove client-side filtering since we're doing server-side search
+  const filteredShops = shops;
 
   const handleViewDetails = (shop: Shop) => {
     navigate(`/shops/${shop._id || shop.id}`);

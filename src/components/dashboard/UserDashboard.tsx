@@ -11,6 +11,7 @@ import {
   IconButton,
   Alert,
   CircularProgress,
+  Grid,
 } from '@mui/material';
 import { Search as SearchIcon, LocationOn as LocationIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,7 @@ import { useAuth } from '../../context/AuthContext';
 import { shopService } from '../../services/api';
 import { Shop } from '../../types';
 import useApiCall from '../../hooks/useApiCall';
+import AIAssistant from '../ai/AIAssistant';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -140,38 +142,50 @@ const UserDashboard = () => {
           </Button>
         </Box>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3 }}>
-          {isLoadingShops ? (
-            <Box sx={{ gridColumn: '1/-1', display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
+        <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
+          <Box sx={{ flex: 1 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+              {isLoadingShops ? (
+                <Box sx={{ gridColumn: '1/-1', display: 'flex', justifyContent: 'center', py: 4 }}>
+                  <CircularProgress />
+                </Box>
+              ) : shops.length === 0 ? (
+                <Box sx={{ gridColumn: '1/-1', textAlign: 'center', py: 4 }}>
+                  <Typography color="textSecondary">
+                    No shops found. Try a different search or location.
+                  </Typography>
+                </Box>
+              ) : (
+                shops.map((shop) => (
+                  <Card key={shop.id}>
+                    <CardContent>
+                      <Typography variant="h6" component="h2">
+                        {shop.name}
+                      </Typography>
+                      <Typography color="textSecondary" gutterBottom>
+                        {shop.categories.join(', ')}
+                      </Typography>
+                      <Typography variant="body2" paragraph>
+                        {shop.description}
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <LocationIcon color="action" fontSize="small" />
+                        <Typography variant="body2">{shop.address}</Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </Box>
-          ) : shops.length === 0 ? (
-            <Box sx={{ gridColumn: '1/-1', textAlign: 'center', py: 4 }}>
-              <Typography color="textSecondary">
-                No shops found. Try a different search or location.
+          </Box>
+          <Box sx={{ width: { xs: '100%', md: '33%' } }}>
+            <Box sx={{ position: 'sticky', top: 20 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                AI Shopping Assistant
               </Typography>
+              <AIAssistant />
             </Box>
-          ) : (
-            shops.map((shop) => (
-              <Card key={shop.id}>
-                <CardContent>
-                  <Typography variant="h6" component="h2">
-                    {shop.name}
-                  </Typography>
-                  <Typography color="textSecondary" gutterBottom>
-                    {shop.categories.join(', ')}
-                  </Typography>
-                  <Typography variant="body2" paragraph>
-                    {shop.description}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <LocationIcon color="action" fontSize="small" />
-                    <Typography variant="body2">{shop.address}</Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))
-          )}
+          </Box>
         </Box>
       </Box>
     </Container>

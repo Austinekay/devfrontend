@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, Typography, CardActions, Button, Box, Chip, CardMedia } from '@mui/material';
 import { LocationOn, AccessTime } from '@mui/icons-material';
 import { Shop } from '../../types';
+import { adminService } from '../../services/api';
 
 interface ShopCardProps {
   shop: Shop;
@@ -79,7 +80,10 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => {
       <Button 
         size="small" 
         color="primary"
-        onClick={() => onViewDetails?.(shop)}
+        onClick={() => {
+          adminService.trackAnalytics(shop._id || shop.id!, 'click');
+          onViewDetails?.(shop);
+        }}
       >
         View Details
       </Button>

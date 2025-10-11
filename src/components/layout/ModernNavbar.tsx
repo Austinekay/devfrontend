@@ -12,6 +12,7 @@ import {
   Chip,
   useScrollTrigger,
   Slide,
+
 } from '@mui/material';
 import {
   AccountCircle,
@@ -19,9 +20,12 @@ import {
   AdminPanelSettings as AdminIcon,
   Logout as LogoutIcon,
   Dashboard as DashboardIcon,
+
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+
+
 
 interface Props {
   children: React.ReactElement;
@@ -42,6 +46,7 @@ const ModernNavbar = () => {
   const navigate = useNavigate();
   const { state: authState, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -134,9 +139,18 @@ const ModernNavbar = () => {
             >
               Discover
             </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate('/ai-recommendations')}
+              sx={{ color: 'text.primary', fontWeight: 500 }}
+            >
+              AI Recommendations
+            </Button>
+
 
             {authState.user ? (
               <>
+
                 <Chip
                   icon={getRoleIcon(authState.user.role)}
                   label={authState.user.role.replace('_', ' ')}
@@ -221,6 +235,8 @@ const ModernNavbar = () => {
             )}
           </Box>
         </Toolbar>
+        
+
       </AppBar>
     </HideOnScroll>
   );

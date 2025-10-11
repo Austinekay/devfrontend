@@ -6,15 +6,7 @@ export const shopOwnerService = {
     return response.data;
   },
 
-  getNotifications: async () => {
-    const response = await api.get('/api/v1/shop-owner/notifications');
-    return response.data;
-  },
 
-  markNotificationRead: async (notificationId: string) => {
-    const response = await api.put(`/api/v1/shop-owner/notifications/${notificationId}/read`);
-    return response.data;
-  },
 
   getShopAnalytics: async (shopId: string, period: string = '7') => {
     const response = await api.get(`/api/v1/shop-owner/shops/${shopId}/analytics?period=${period}`);

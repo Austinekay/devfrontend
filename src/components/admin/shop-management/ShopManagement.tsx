@@ -18,7 +18,7 @@ import {
   TextField,
 } from '@mui/material';
 import { Edit, Delete, Add } from '@mui/icons-material';
-import { mockShopService } from '../../../services/mockApi';
+import { adminService } from '../../../services/api';
 import { Shop } from '../../../types';
 
 const ShopManagement = () => {
@@ -34,7 +34,7 @@ const ShopManagement = () => {
   const loadShops = async () => {
     try {
       setIsLoading(true);
-      const data = await mockShopService.getAllShops();
+      const data = await adminService.getShops();
       setShops(data);
     } catch (error) {
       console.error('Error loading shops:', error);
@@ -51,7 +51,7 @@ const ShopManagement = () => {
   const handleDelete = async (shopId: string) => {
     if (window.confirm('Are you sure you want to delete this shop?')) {
       try {
-        await mockShopService.deleteShop(shopId);
+        await adminService.deleteShop(shopId);
         // Update local state immediately and reload to ensure consistency
         setShops(prevShops => prevShops.filter(shop => (shop._id || shop.id) !== shopId));
         await loadShops();

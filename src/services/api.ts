@@ -61,12 +61,13 @@ export const authService = {
 
 
 export const shopService = {
-  getShops: async (lat?: number, lng?: number, radius?: number, category?: string) => {
+  getShops: async (lat?: number, lng?: number, radius?: number, category?: string, search?: string) => {
     const params = new URLSearchParams();
     if (lat) params.append('lat', lat.toString());
     if (lng) params.append('lng', lng.toString());
     if (radius) params.append('radius', radius.toString());
     if (category) params.append('category', category);
+    if (search) params.append('search', search);
     // Add cache-busting parameter
     params.append('_t', Date.now().toString());
     
@@ -75,7 +76,8 @@ export const shopService = {
   },
 
   searchShops: async (query: string) => {
-    const response = await api.get(`/api/v1/shops?search=${query}`);
+    const params = new URLSearchParams({ search: query });
+    const response = await api.get(`/api/v1/shops?${params}`);
     return response.data.shops;
   },
 
@@ -120,7 +122,7 @@ export const shopService = {
     return response.data.shops;
   },
 
-  getNearbyShops: async (lat: number, lng: number, radius: number = 2000) => {
+  getNearbyShops: async (lat: number, lng: number, radius: number = 5000) => {
     const params = new URLSearchParams({
       lat: lat.toString(),
       lng: lng.toString(),
@@ -169,6 +171,11 @@ export const userService = {
 };
 
 const adminService = {
+  getStats: async () => {
+    const response = await api.get('/api/v1/admin/stats');
+    return response.data;
+  },
+
   getAnalytics: async () => {
     const response = await api.get('/api/v1/admin/analytics');
     return response.data;
@@ -222,6 +229,21 @@ const adminService = {
   updateSettings: async (settings: any) => {
     const response = await api.put('/api/v1/admin/settings', settings);
     return response.data;
+  },
+
+  trackAnalytics: async (shopId: string, type: 'view' | 'click') => {
+    try {
+      await api.post('/api/v1/admin/track', { shopId, type });
+    } catch (error) {
+      console.error('Analytics tracking failed:', error);
+    }
+  },
+};
+
+export const recommendationService = {
+  getAIRecommendations: async (query: string, lat: number, lng: number) => {
+    const response = await api.post('/api/recommend', { query, lat, lng });
+    return response.data.recommendations;
   },
 };
 

@@ -48,9 +48,10 @@ const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode }
       <Typography 
         color="textSecondary" 
         gutterBottom 
-        variant="h6"
+        variant="caption"
         sx={{ 
           fontWeight: 500,
+          fontSize: '0.65rem',
           transition: 'color 0.3s ease',
           '&:hover': { color: 'primary.main' }
         }}
@@ -59,8 +60,8 @@ const StatCard: React.FC<{ title: string; value: number; icon: React.ReactNode }
       </Typography>
       <Typography 
         color="textPrimary" 
-        variant="h4"
-        sx={{ fontWeight: 600 }}
+        variant="h6"
+        sx={{ fontWeight: 600, fontSize: '1rem' }}
       >
         {value}
       </Typography>
@@ -87,6 +88,7 @@ const AdminStats = () => {
     pendingReports: 0,
     resolvedReports: 0
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStats();
@@ -94,19 +96,46 @@ const AdminStats = () => {
 
   const loadStats = async () => {
     try {
-      // Mock data - replace with actual API calls
+      setLoading(true);
+      const data = await adminService.getStats();
       setStats({
-        totalShops: 156,
-        totalUsers: 1250,
-        totalCategories: 12,
-        activeShops: 142,
-        pendingReports: 8,
-        resolvedReports: 45
+        totalShops: data.totalShops,
+        totalUsers: data.totalUsers,
+        totalCategories: data.totalCategories,
+        activeShops: data.activeShops,
+        pendingReports: data.pendingReports,
+        resolvedReports: data.resolvedReports
       });
     } catch (error) {
       console.error('Error loading stats:', error);
+      // Keep default values on error
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+          lg: 'repeat(6, 1fr)'
+        }, 
+        gap: 3 
+      }}>
+        {[...Array(6)].map((_, index) => (
+          <Paper key={index} sx={{ p: 3, height: 100 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Typography color="textSecondary">Loading...</Typography>
+            </Box>
+          </Paper>
+        ))}
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ 
