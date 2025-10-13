@@ -199,11 +199,14 @@ const ShopDetail: React.FC = () => {
                     <Schedule color="primary" />
                     <Typography variant="subtitle2">Opening Hours:</Typography>
                   </Box>
-                  {Object.entries(shop.openingHours).map(([day, hours]) => (
-                    <Typography key={day} variant="body2" sx={{ ml: 3 }}>
-                      {day.charAt(0).toUpperCase() + day.slice(1)}: {hours.open} - {hours.close}
-                    </Typography>
-                  ))}
+                  {Object.entries(shop.openingHours).map(([day, hours]) => {
+                    const dayHours = typeof hours === 'object' && hours !== null ? hours : { open: '09:00', close: '17:00', isClosed: false };
+                    return (
+                      <Typography key={day} variant="body2" sx={{ ml: 3 }}>
+                        {day.charAt(0).toUpperCase() + day.slice(1)}: {dayHours.isClosed ? 'Closed' : `${dayHours.open} - ${dayHours.close}`}
+                      </Typography>
+                    );
+                  })}
                 </Box>
               )}
             </Box>

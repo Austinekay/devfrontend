@@ -92,17 +92,26 @@ const LandingHome = () => {
         sx={{
           background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
           color: 'white',
-          py: 8,
+          py: { xs: 6, sm: 8 },
           textAlign: 'center',
+          px: { xs: 2, sm: 0 }
         }}
       >
         <Container maxWidth="md">
-          <Typography variant="h2" sx={{ mb: 2, fontWeight: 700 }}>
+          <Typography 
+            variant="h2" 
+            sx={{ 
+              mb: 2, 
+              fontWeight: 700,
+              fontSize: { xs: '1.75rem', sm: '2.5rem' },
+              lineHeight: 1.2
+            }}
+          >
             Find shops near you
           </Typography>
           
           {/* Hero Search Bar */}
-          <Paper sx={{ p: 1, borderRadius: 4, mb: 4 }}>
+          <Paper sx={{ p: { xs: 0.5, sm: 1 }, borderRadius: 4, mb: 4, mx: { xs: 1, sm: 0 } }}>
             <TextField
               fullWidth
               placeholder="Find shops near you..."
@@ -116,23 +125,44 @@ const LandingHome = () => {
                   </InputAdornment>
                 ),
                 endAdornment: (
-                  <Button variant="contained" onClick={handleSearch}>
+                  <Button 
+                    variant="contained" 
+                    onClick={handleSearch}
+                    sx={{ 
+                      minHeight: 44,
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    }}
+                  >
                     Search
                   </Button>
                 ),
-                sx: { '& .MuiOutlinedInput-notchedOutline': { border: 'none' } },
+                sx: { 
+                  '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                  minHeight: 44
+                },
               }}
             />
           </Paper>
 
           {/* CTA Buttons */}
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2, 
+            justifyContent: 'center', 
+            flexWrap: 'wrap',
+            px: { xs: 1, sm: 0 }
+          }}>
             <Button
               variant="contained"
               size="large"
               startIcon={<LocationIcon />}
               onClick={handleUseLocation}
-              sx={{ bgcolor: 'secondary.main' }}
+              sx={{ 
+                bgcolor: 'secondary.main',
+                minHeight: 48,
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                px: { xs: 2, sm: 3 }
+              }}
             >
               Use My Location
             </Button>
@@ -140,7 +170,13 @@ const LandingHome = () => {
               variant="outlined"
               size="large"
               onClick={() => navigate('/shops')}
-              sx={{ borderColor: 'white', color: 'white' }}
+              sx={{ 
+                borderColor: 'white', 
+                color: 'white',
+                minHeight: 48,
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                px: { xs: 2, sm: 3 }
+              }}
             >
               Browse Categories
             </Button>
@@ -149,15 +185,23 @@ const LandingHome = () => {
       </Box>
 
       {/* Category Carousel */}
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', fontWeight: 600 }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 4, sm: 6 }, px: { xs: 2, sm: 3, md: 4 } }}>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            mb: 4, 
+            textAlign: 'center', 
+            fontWeight: 600,
+            fontSize: { xs: '1.5rem', sm: '2rem' }
+          }}
+        >
           Explore Categories
         </Typography>
         
         <Box sx={{ 
           display: 'grid', 
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(5, 1fr)' }, 
-          gap: 3 
+          gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)', lg: 'repeat(5, 1fr)' }, 
+          gap: { xs: 2, sm: 3 }
         }}>
           {categories.map((category) => (
             <Card
@@ -165,8 +209,13 @@ const LandingHome = () => {
               sx={{
                 cursor: 'pointer',
                 textAlign: 'center',
-                p: 2,
+                p: { xs: 1.5, sm: 2 },
+                minHeight: { xs: 120, sm: 140 },
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
                 '&:hover': { transform: 'translateY(-4px)', boxShadow: 3 },
+                '&:active': { transform: 'scale(0.95)' },
                 transition: 'all 0.3s ease',
               }}
               onClick={() => handleCategoryClick(category.name)}
@@ -174,31 +223,47 @@ const LandingHome = () => {
               <Avatar
                 sx={{
                   bgcolor: category.color,
-                  width: 56,
-                  height: 56,
+                  width: { xs: 48, sm: 56 },
+                  height: { xs: 48, sm: 56 },
                   mx: 'auto',
                   mb: 1,
                 }}
               >
                 {category.icon}
               </Avatar>
-              <Typography variant="h6">{category.name}</Typography>
+              <Typography 
+                variant="h6"
+                sx={{ 
+                  fontSize: { xs: '0.875rem', sm: '1.25rem' },
+                  fontWeight: 600
+                }}
+              >
+                {category.name}
+              </Typography>
             </Card>
           ))}
         </Box>
       </Container>
 
       {/* Featured Shops */}
-      <Box sx={{ bgcolor: 'grey.50', py: 6 }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', fontWeight: 600 }}>
+      <Box sx={{ bgcolor: 'grey.50', py: { xs: 4, sm: 6 } }}>
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              mb: 4, 
+              textAlign: 'center', 
+              fontWeight: 600,
+              fontSize: { xs: '1.5rem', sm: '2rem' }
+            }}
+          >
             Featured Shops
           </Typography>
           
           <Box sx={{ 
             display: 'grid', 
             gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, 
-            gap: 3 
+            gap: { xs: 2, sm: 3 }
           }}>
             {featuredShops.map((shop: any) => (
               <Card
@@ -237,23 +302,56 @@ const LandingHome = () => {
                     {shop.name?.charAt(0) || 'S'}
                   </Typography>
                 </Box>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
+                <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      mb: 1,
+                      fontSize: { xs: '1rem', sm: '1.25rem' },
+                      fontWeight: 600
+                    }}
+                  >
                     {shop.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ 
+                      mb: 1,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
                     {shop.address}
                   </Typography>
                   {shop.contact && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-                      <PhoneIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                      <Typography variant="body2">{shop.contact}</Typography>
+                      <PhoneIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
+                      <Typography 
+                        variant="body2"
+                        sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                      >
+                        {shop.contact}
+                      </Typography>
                     </Box>
                   )}
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                  }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <StarIcon sx={{ color: '#F97316', fontSize: 16 }} />
-                      <Typography variant="body2">4.5</Typography>
+                      <StarIcon sx={{ color: '#F97316', fontSize: { xs: 14, sm: 16 } }} />
+                      <Typography 
+                        variant="body2"
+                        sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                      >
+                        4.5
+                      </Typography>
                     </Box>
                     <Button
                       size="small"
@@ -262,7 +360,12 @@ const LandingHome = () => {
                         e.stopPropagation();
                         navigate(`/shops/${shop._id || shop.id}`);
                       }}
-                      sx={{ minWidth: 'auto' }}
+                      sx={{ 
+                        minWidth: 'auto',
+                        minHeight: 44,
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        width: { xs: '100%', sm: 'auto' }
+                      }}
                     >
                       Directions
                     </Button>

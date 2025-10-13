@@ -1,6 +1,15 @@
 import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   palette: {
     primary: {
       main: '#2563EB',
@@ -23,11 +32,35 @@ export const theme = createTheme({
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: { fontWeight: 700, fontSize: '2.5rem' },
-    h2: { fontWeight: 700, fontSize: '2rem' },
-    h3: { fontWeight: 600, fontSize: '1.5rem' },
-    h4: { fontWeight: 600, fontSize: '1.25rem' },
-    body1: { fontSize: '1rem', lineHeight: 1.6 },
+    h1: { 
+      fontWeight: 700, 
+      fontSize: '1.75rem',
+      '@media (min-width:600px)': {
+        fontSize: '2.5rem',
+      },
+    },
+    h2: { 
+      fontWeight: 700, 
+      fontSize: '1.5rem',
+      '@media (min-width:600px)': {
+        fontSize: '2rem',
+      },
+    },
+    h3: { 
+      fontWeight: 600, 
+      fontSize: '1.25rem',
+      '@media (min-width:600px)': {
+        fontSize: '1.5rem',
+      },
+    },
+    h4: { 
+      fontWeight: 600, 
+      fontSize: '1.125rem',
+      '@media (min-width:600px)': {
+        fontSize: '1.25rem',
+      },
+    },
+    body1: { fontSize: '0.875rem', lineHeight: 1.6, '@media (min-width:600px)': { fontSize: '1rem' } },
   },
   shape: { borderRadius: 12 },
   components: {
@@ -38,6 +71,11 @@ export const theme = createTheme({
           fontWeight: 600,
           borderRadius: 12,
           boxShadow: 'none',
+          minHeight: 44,
+          '@media (max-width:600px)': {
+            fontSize: '0.875rem',
+            padding: '8px 16px',
+          },
         },
         contained: {
           background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
@@ -50,10 +88,24 @@ export const theme = createTheme({
           borderRadius: 16,
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
           border: '1px solid #E5E7EB',
+          '@media (max-width:600px)': {
+            borderRadius: 12,
+            margin: '0 8px',
+          },
           '&:hover': {
             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
             transform: 'translateY(-2px)',
             transition: 'all 0.2s ease-in-out',
+          },
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          '@media (max-width:600px)': {
+            paddingLeft: 16,
+            paddingRight: 16,
           },
         },
       },

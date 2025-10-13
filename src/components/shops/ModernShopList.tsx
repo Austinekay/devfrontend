@@ -149,9 +149,13 @@ const ModernShopList = () => {
         height: '100%',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
+        mx: { xs: 1, sm: 0 },
         '&:hover': {
           transform: 'translateY(-4px)',
           boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
+        },
+        '&:active': {
+          transform: 'scale(0.98)',
         },
       }}
       onClick={async () => {
@@ -210,23 +214,54 @@ const ModernShopList = () => {
           </Typography>
         </Box>
       </CardMedia>
-      <CardContent sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            mb: 1, 
+            fontWeight: 600,
+            fontSize: { xs: '1rem', sm: '1.25rem' },
+            lineHeight: 1.3
+          }}
+        >
           {shop.name}
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, height: 40, overflow: 'hidden' }}>
+        <Typography 
+          variant="body2" 
+          color="text.secondary" 
+          sx={{ 
+            mb: 2, 
+            height: { xs: 32, sm: 40 }, 
+            overflow: 'hidden',
+            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+            lineHeight: 1.4
+          }}
+        >
           {shop.description}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <LocationIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 0.5 }} />
-          <Typography variant="body2" color="text.secondary">
+          <LocationIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary', mr: 0.5 }} />
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{ 
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
             {shop.address}
           </Typography>
         </Box>
         {(shop as any).contact && (
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <PhoneIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 0.5 }} />
-            <Typography variant="body2" color="text.secondary">
+            <PhoneIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary', mr: 0.5 }} />
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+            >
               {(shop as any).contact}
             </Typography>
           </Box>
@@ -237,16 +272,33 @@ const ModernShopList = () => {
               key={category}
               label={category}
               size="small"
-              sx={{ bgcolor: 'primary.light', color: 'white' }}
+              sx={{ 
+                bgcolor: 'primary.light', 
+                color: 'white',
+                fontSize: { xs: '0.625rem', sm: '0.75rem' },
+                height: { xs: 24, sm: 28 }
+              }}
             />
           ))}
         </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
             {(shop as any).contact && (
               <IconButton 
                 size="small" 
-                sx={{ bgcolor: 'primary.light', color: 'white' }}
+                sx={{ 
+                  bgcolor: 'primary.light', 
+                  color: 'white',
+                  minHeight: 44,
+                  minWidth: 44,
+                  flex: { xs: 1, sm: 'none' }
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   window.open(`tel:${(shop as any).contact}`);
@@ -268,7 +320,12 @@ const ModernShopList = () => {
               }
               navigate(`/shops/${shop._id || shop.id}`);
             }}
-            sx={{ minWidth: 'auto' }}
+            sx={{ 
+              minWidth: 'auto',
+              minHeight: 44,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              width: { xs: '100%', sm: 'auto' }
+            }}
           >
             Directions
           </Button>
@@ -278,11 +335,19 @@ const ModernShopList = () => {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pt: 10 }}>
-      <Container maxWidth="xl">
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pt: { xs: 8, sm: 10 } }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
+        <Box sx={{ mb: { xs: 3, md: 4 } }}>
+          <Typography 
+            variant="h3" 
+            sx={{ 
+              mb: 2, 
+              fontWeight: 700,
+              fontSize: { xs: '1.75rem', sm: '2.5rem' },
+              textAlign: { xs: 'center', sm: 'left' }
+            }}
+          >
             Discover Shops
           </Typography>
           
@@ -314,7 +379,13 @@ const ModernShopList = () => {
           </Paper>
 
           {/* Categories */}
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1, 
+            flexWrap: 'wrap', 
+            mb: 3,
+            justifyContent: { xs: 'center', sm: 'flex-start' }
+          }}>
             {categories.map((category) => (
               <Chip
                 key={category}
@@ -324,37 +395,54 @@ const ModernShopList = () => {
                 sx={{
                   '&:hover': { bgcolor: 'primary.light', color: 'white' },
                   transition: 'all 0.2s ease',
+                  minHeight: 44,
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
                 }}
               />
             ))}
           </Box>
 
           {/* Controls */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 3,
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: { xs: 2, sm: 0 }
+          }}>
             <Typography variant="body1" color="text.secondary">
               {filteredShops.length} shops found
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
               <Button
                 variant={showAIRecommendations ? 'contained' : 'outlined'}
                 size="small"
                 onClick={() => setShowAIRecommendations(!showAIRecommendations)}
-                sx={{ mr: 2 }}
+                sx={{ 
+                  mr: { xs: 0, sm: 2 },
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                  minHeight: 44
+                }}
               >
                 AI Recommendations
               </Button>
-              <IconButton
-                onClick={() => setViewMode('grid')}
-                color={viewMode === 'grid' ? 'primary' : 'default'}
-              >
-                <GridIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => setViewMode('list')}
-                color={viewMode === 'list' ? 'primary' : 'default'}
-              >
-                <ListIcon />
-              </IconButton>
+              <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
+                <IconButton
+                  onClick={() => setViewMode('grid')}
+                  color={viewMode === 'grid' ? 'primary' : 'default'}
+                  sx={{ minHeight: 44, minWidth: 44 }}
+                >
+                  <GridIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => setViewMode('list')}
+                  color={viewMode === 'list' ? 'primary' : 'default'}
+                  sx={{ minHeight: 44, minWidth: 44 }}
+                >
+                  <ListIcon />
+                </IconButton>
+              </Box>
             </Box>
           </Box>
 
@@ -375,9 +463,14 @@ const ModernShopList = () => {
 
         {/* Shop Grid */}
         {loading ? (
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, 
+            gap: { xs: 2, sm: 3 },
+            px: { xs: 1, sm: 0 }
+          }}>
             {[...Array(6)].map((_, index) => (
-              <Card key={index}>
+              <Card key={index} sx={{ mx: { xs: 1, sm: 0 } }}>
                 <Skeleton variant="rectangular" height={200} />
                 <CardContent>
                   <Skeleton variant="text" height={32} />
@@ -388,7 +481,12 @@ const ModernShopList = () => {
             ))}
           </Box>
         ) : (
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, 
+            gap: { xs: 2, sm: 3 },
+            px: { xs: 1, sm: 0 }
+          }}>
             {filteredShops.map((shop) => (
               <ShopCard key={shop._id || shop.id} shop={shop} />
             ))}
@@ -411,7 +509,12 @@ const ModernShopList = () => {
       {/* Filter FAB */}
       <Fab
         color="primary"
-        sx={{ position: 'fixed', bottom: 24, right: 24 }}
+        sx={{ 
+          position: 'fixed', 
+          bottom: { xs: 16, sm: 24 }, 
+          right: { xs: 16, sm: 24 },
+          zIndex: 1000
+        }}
         onClick={() => setFilterOpen(true)}
       >
         <FilterIcon />
@@ -422,7 +525,13 @@ const ModernShopList = () => {
         anchor="right"
         open={filterOpen}
         onClose={() => setFilterOpen(false)}
-        PaperProps={{ sx: { width: 320, p: 3 } }}
+        PaperProps={{ 
+          sx: { 
+            width: { xs: '100vw', sm: 320 }, 
+            p: 3,
+            maxWidth: '400px'
+          } 
+        }}
       >
         <Typography variant="h6" sx={{ mb: 3 }}>
           Filters
