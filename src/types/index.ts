@@ -29,6 +29,7 @@ export interface Shop {
   ownerId?: string;
   categories: string[];
   images?: string[];
+  imageUrl?: string;
   contact?: string;
   openingHours: {
     [key: string]: {

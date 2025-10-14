@@ -21,7 +21,7 @@ const ShopDetail: React.FC = () => {
       console.log('ShopDetail - fetching shop with ID:', shopId);
       const data = await shopService.getShopById(shopId);
       console.log('ShopDetail - received shop data:', data);
-      console.log('ShopDetail - shop images:', data?.images);
+      console.log('ShopDetail - shop imageUrl:', data?.imageUrl);
       setShop(data);
       
       // View tracking is now handled automatically by the backend
@@ -85,11 +85,11 @@ const ShopDetail: React.FC = () => {
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', paddingTop: '100px' }}>
       {/* Shop Image Section */}
       <Box sx={{ height: '50vh', position: 'relative', bgcolor: 'grey.200' }}>
-        {shop.images && shop.images.length > 0 ? (
+        {shop.imageUrl ? (
           <CardMedia
             component="img"
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            image={shop.images[0]}
+            image={shop.imageUrl}
             alt={shop.name}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
@@ -102,7 +102,7 @@ const ShopDetail: React.FC = () => {
           sx={{
             height: '100%',
             background: 'linear-gradient(45deg, #2563EB 30%, #F97316 90%)',
-            display: shop.images && shop.images.length > 0 ? 'none' : 'flex',
+            display: shop.imageUrl ? 'none' : 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -137,17 +137,17 @@ const ShopDetail: React.FC = () => {
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-            {shop.images && shop.images.length > 0 ? (
+            {shop.imageUrl ? (
               <Box sx={{ flex: 1 }}>
                 <Card>
                   <CardMedia
                     component="img"
                     height="300"
-                    image={shop.images[0]}
+                    image={shop.imageUrl}
                     alt={shop.name}
                     sx={{ objectFit: 'cover' }}
                     onError={(e) => {
-                      console.log('ShopDetail - image failed to load:', shop.images?.[0]);
+                      console.log('ShopDetail - image failed to load:', shop.imageUrl);
                       e.currentTarget.style.display = 'none';
                     }}
                   />

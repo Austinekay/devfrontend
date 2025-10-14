@@ -34,7 +34,6 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
     contact: '',
     category: '',
     categories: [] as string[],
-    images: [] as string[],
     coordinates: [0, 0] as [number, number],
     latitude: 0,
     longitude: 0,
@@ -48,6 +47,8 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
       'sunday': { open: '10:00', close: '16:00', isClosed: false },
     } as Shop['openingHours'],
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (shop) {
@@ -85,7 +86,6 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
         contact: (shop as any).contact || '',
         category: '',
         categories: shop.categories || [],
-        images: shop.images || [],
         coordinates: shop.location?.coordinates || [0, 0],
         latitude: shop.location?.coordinates?.[1] || 0,
         longitude: shop.location?.coordinates?.[0] || 0,
@@ -99,7 +99,6 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
         contact: '',
         category: '',
         categories: [],
-        images: [],
         coordinates: [0, 0],
         latitude: 0,
         longitude: 0,
@@ -142,90 +141,63 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      Array.from(files).forEach((file) => {
-        if (file.size > 2 * 1024 * 1024) {
-          alert(`File ${file.name} is too large. Maximum size is 2MB.`);
-          return;
-        }
-        
-        // Create canvas to compress image
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        
-        img.onload = () => {
-          // Set max dimensions
-          const maxWidth = 800;
-          const maxHeight = 600;
-          let { width, height } = img;
-          
-          // Calculate new dimensions
-          if (width > height) {
-            if (width > maxWidth) {
-              height = (height * maxWidth) / width;
-              width = maxWidth;
-            }
-          } else {
-            if (height > maxHeight) {
-              width = (width * maxHeight) / height;
-              height = maxHeight;
-            }
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Draw and compress
-          ctx?.drawImage(img, 0, 0, width, height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          
-          console.log('Image compressed from', file.size, 'to', compressedDataUrl.length * 0.75, 'bytes');
-          
-          setFormData((prev) => ({
-            ...prev,
-            images: [...prev.images, compressedDataUrl],
-          }));
-        };
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          img.src = e.target?.result as string;
-        };
-        reader.readAsDataURL(file);
-      });
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File is too large. Maximum size is 5MB.');
+        return;
+      }
+      
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Only .jpg, .jpeg, and .png files are allowed.');
+        return;
+      }
+      
+      setSelectedImage(file);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleDeleteImage = (indexToDelete: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, index) => index !== indexToDelete),
-    }));
+  const handleDeleteImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.description || !formData.address || formData.latitude === 0) {
-      return; // Add proper validation feedback later
+      return;
     }
-    const shopData = {
-      name: formData.name,
-      description: formData.description,
-      address: formData.address,
-      contact: formData.contact,
-      categories: formData.categories.length > 0 ? formData.categories : ['General'],
-      images: formData.images,
-      location: {
-        type: 'Point' as const,
-        coordinates: [formData.longitude, formData.latitude] as [number, number]
-      },
-      openingHours: formData.openingHours
-    };
-    console.log('ShopFormDialog - submitting shop data:', shopData);
-    console.log('ShopFormDialog - images being submitted:', formData.images);
-    onSubmit(shopData);
+    
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('address', formData.address);
+    formDataToSend.append('contact', formData.contact);
+    formDataToSend.append('categories', JSON.stringify(formData.categories.length > 0 ? formData.categories : ['General']));
+    formDataToSend.append('location', JSON.stringify({
+      type: 'Point',
+      coordinates: [formData.longitude, formData.latitude]
+    }));
+    formDataToSend.append('openingHours', JSON.stringify(formData.openingHours));
+    
+    if (selectedImage) {
+      formDataToSend.append('image', selectedImage);
+    }
+    
+    // Debug: Log FormData contents
+    console.log('FormData being sent:');
+    Array.from(formDataToSend.entries()).forEach(([key, value]) => {
+      console.log(key, value);
+    });
+    
+    onSubmit(formDataToSend as any);
   };
 
   return (
@@ -336,55 +308,54 @@ const ShopFormDialog = ({ open, onClose, onSubmit, shop }: ShopFormDialogProps) 
             
             <Box>
               <Typography variant="subtitle1" gutterBottom>
-                Shop Images
+                Shop Image
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
-                Maximum file size: 5MB per image
+                Maximum file size: 5MB. Allowed formats: .jpg, .jpeg, .png
               </Typography>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
-                {formData.images.map((image, index) => (
-                  <Box key={index} sx={{ position: 'relative' }}>
-                    <img
-                      src={image}
-                      alt={`Shop ${index + 1}`}
-                      style={{
-                        width: 100,
-                        height: 100,
-                        objectFit: 'cover',
-                        borderRadius: 8,
-                      }}
-                    />
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteImage(index)}
-                      sx={{
-                        position: 'absolute',
-                        top: -8,
-                        right: -8,
-                        bgcolor: 'error.main',
-                        color: 'white',
-                        '&:hover': { bgcolor: 'error.dark' },
-                      }}
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </Box>
-                ))}
+              {imagePreview && (
+                <Box sx={{ position: 'relative', display: 'inline-block', mb: 2 }}>
+                  <img
+                    src={imagePreview}
+                    alt="Shop preview"
+                    style={{
+                      width: 150,
+                      height: 150,
+                      objectFit: 'cover',
+                      borderRadius: 8,
+                    }}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={handleDeleteImage}
+                    sx={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -8,
+                      bgcolor: 'error.main',
+                      color: 'white',
+                      '&:hover': { bgcolor: 'error.dark' },
+                    }}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </Box>
+              )}
+              <Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<PhotoCamera />}
+                >
+                  {imagePreview ? 'Change Image' : 'Upload Image'}
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/jpeg,image/jpg,image/png"
+                    onChange={handleImageUpload}
+                  />
+                </Button>
               </Box>
-              <Button
-                variant="outlined"
-                component="label"
-                startIcon={<PhotoCamera />}
-              >
-                Upload Images
-                <input
-                  type="file"
-                  hidden
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-              </Button>
             </Box>
 
             <Box>

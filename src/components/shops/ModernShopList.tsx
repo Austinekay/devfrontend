@@ -167,11 +167,11 @@ const ModernShopList = () => {
         navigate(`/shops/${shop._id || shop.id}`);
       }}
     >
-      {shop.images && shop.images.length > 0 ? (
+      {((shop as any).imageUrl || (shop.images && shop.images.length > 0)) ? (
         <CardMedia
           component="img"
           height="200"
-          image={shop.images[0]}
+          image={(shop as any).imageUrl || shop.images?.[0]}
           alt={shop.name}
           sx={{ objectFit: 'cover' }}
           onError={(e) => {
@@ -186,7 +186,7 @@ const ModernShopList = () => {
         sx={{
           height: 200,
           background: `linear-gradient(45deg, #2563EB 30%, #F97316 90%)`,
-          display: shop.images && shop.images.length > 0 ? 'none' : 'flex',
+          display: ((shop as any).imageUrl || (shop.images && shop.images.length > 0)) ? 'none' : 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',

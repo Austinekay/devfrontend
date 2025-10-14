@@ -27,7 +27,7 @@ interface ShopTableProps {
 const ShopTable = ({ shops, onEdit, onDelete, onViewAnalytics }: ShopTableProps) => {
   console.log('ShopTable - shops data:', shops);
   shops.forEach((shop, index) => {
-    console.log(`Shop ${index}:`, shop.name, 'Images:', shop.images);
+    console.log(`Shop ${index}:`, shop.name, 'Images:', shop.images, 'ImageUrl:', (shop as any).imageUrl);
   });
   
   return (
@@ -49,7 +49,7 @@ const ShopTable = ({ shops, onEdit, onDelete, onViewAnalytics }: ShopTableProps)
             <TableRow key={shop._id || shop.id}>
               <TableCell>
                 <Avatar
-                  src={shop.images?.[0]}
+                  src={shop.imageUrl || shop.images?.[0]}
                   sx={{ width: 50, height: 50 }}
                 >
                   <Store />

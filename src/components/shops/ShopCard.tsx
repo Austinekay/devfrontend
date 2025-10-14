@@ -11,7 +11,10 @@ interface ShopCardProps {
 
 const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => {
   console.log('ShopCard - shop data:', shop);
+  console.log('ShopCard - imageUrl:', shop.imageUrl);
   console.log('ShopCard - images:', shop.images);
+  console.log('ShopCard - has imageUrl:', !!shop.imageUrl);
+  console.log('ShopCard - has images:', !!(shop.images && shop.images.length > 0));
   
   return (
   <Card sx={{ 
@@ -24,16 +27,15 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => {
       boxShadow: 4,
     }
   }}>
-    {shop.images && shop.images.length > 0 ? (
+    {(shop.imageUrl || (shop.images && shop.images.length > 0)) ? (
       <CardMedia
         component="img"
         height="140"
-        image={shop.images[0]}
+        image={shop.imageUrl || shop.images?.[0]}
         alt={shop.name}
         sx={{ objectFit: 'cover' }}
         onError={(e) => {
-          console.log('ShopCard - Image failed to load:', shop.images?.[0]);
-          // Hide the broken image and show fallback
+          console.error('Image failed to load:', shop.imageUrl || shop.images?.[0]);
           e.currentTarget.style.display = 'none';
           const fallback = e.currentTarget.nextElementSibling as HTMLElement;
           if (fallback) fallback.style.display = 'flex';
@@ -45,7 +47,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onViewDetails }) => {
       sx={{
         height: 140,
         bgcolor: 'primary.light',
-        display: shop.images && shop.images.length > 0 ? 'none' : 'flex',
+        display: (shop.imageUrl || (shop.images && shop.images.length > 0)) ? 'none' : 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}

@@ -77,11 +77,18 @@ const ShopOwnerDashboard = () => {
       if (selectedShop) {
         await shopService.updateShop(selectedShop._id || selectedShop.id!, shopData);
       } else {
-        const shopWithOwner = {
-          ...shopData,
-          ownerId: authState.user?.id
-        };
-        await shopService.createShop(shopWithOwner);
+        // If shopData is FormData, append ownerId to it
+        if (shopData instanceof FormData) {
+          shopData.append('ownerId', authState.user?.id || '');
+          await shopService.createShop(shopData);
+        } else {
+          // If it's a regular object, add ownerId
+          const shopWithOwner = {
+            ...shopData,
+            ownerId: authState.user?.id
+          };
+          await shopService.createShop(shopWithOwner);
+        }
       }
       setIsFormOpen(false);
       setSelectedShop(undefined);

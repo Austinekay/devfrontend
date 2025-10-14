@@ -5,9 +5,6 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Add a request interceptor to add the auth token to requests
@@ -16,6 +13,10 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    // Set Content-Type for non-FormData requests
+    if (!(config.data instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json';
     }
     return config;
   },
@@ -82,16 +83,6 @@ export const shopService = {
   },
 
   createShop: async (shopData: any) => {
-    // Ensure location is in proper GeoJSON format
-    if (shopData.coordinates) {
-      shopData.location = {
-        type: 'Point',
-        coordinates: [shopData.coordinates[1], shopData.coordinates[0]] // [lng, lat]
-      };
-      delete shopData.coordinates;
-      delete shopData.latitude;
-      delete shopData.longitude;
-    }
     const response = await api.post('/api/v1/shops', shopData);
     return response.data.shop;
   },

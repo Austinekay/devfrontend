@@ -10,6 +10,7 @@ interface Shop {
   address: string;
   categories: string[];
   images?: string[];
+  imageUrl?: string;
   location: {
     coordinates: [number, number];
   };
@@ -43,8 +44,16 @@ const NearbyShops = ({ userLocation, selectedCategory }: NearbyShopsProps) => {
       
       console.log('Searching for shops near:', { lat, lng, radius, category });
       const nearbyShops = await shopService.getNearbyShops(lat, lng, radius);
+      console.log('=== HOME PAGE API RESPONSE ===');
       console.log('API Response - nearbyShops:', nearbyShops);
       console.log('Number of shops returned:', nearbyShops?.length || 0);
+      nearbyShops.forEach((shop: Shop, index: number) => {
+        console.log(`Shop ${index + 1}: ${shop.name}`);
+        console.log('  imageUrl:', shop.imageUrl);
+        console.log('  images:', shop.images);
+        console.log('  All keys:', Object.keys(shop));
+      });
+      console.log('=== END HOME PAGE API RESPONSE ===');
       
       // Filter by category if selected
       let filteredShops = nearbyShops;
@@ -160,14 +169,26 @@ const NearbyShops = ({ userLocation, selectedCategory }: NearbyShopsProps) => {
                   flexShrink: 0
                 }}
               >
-                {shop.images && shop.images[0] ? (
+                {shop.imageUrl ? (
                   <img
-                    src={shop.images[0]}
+                    src={shop.imageUrl}
                     alt={shop.name}
                     style={{
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover'
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Image loaded successfully:', shop.imageUrl);
+                    }}
+                    onError={(e) => {
+                      console.error('❌ Image failed to load:', shop.imageUrl);
+                      console.error('Error event:', e);
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<svg class="MuiSvgIcon-root MuiSvgIcon-colorAction" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zM20 18H4V8h16v10z"></path></svg>';
+                      }
                     }}
                   />
                 ) : (

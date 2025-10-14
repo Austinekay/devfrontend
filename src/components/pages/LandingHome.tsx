@@ -275,11 +275,11 @@ const LandingHome = () => {
                 }}
                 onClick={() => navigate(`/shops/${shop._id || shop.id}`)}
               >
-                {shop.images && shop.images.length > 0 ? (
+                {(shop.imageUrl || (shop.images && shop.images.length > 0)) ? (
                   <CardMedia
                     component="img"
                     height="160"
-                    image={shop.images[0]}
+                    image={shop.imageUrl || shop.images[0]}
                     alt={shop.name}
                     sx={{ objectFit: 'cover' }}
                     onError={(e) => {
@@ -293,7 +293,7 @@ const LandingHome = () => {
                   sx={{
                     height: 160,
                     background: 'linear-gradient(45deg, #2563EB 30%, #F97316 90%)',
-                    display: shop.images && shop.images.length > 0 ? 'none' : 'flex',
+                    display: (shop.imageUrl || (shop.images && shop.images.length > 0)) ? 'none' : 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
