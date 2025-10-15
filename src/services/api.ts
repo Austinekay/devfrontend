@@ -5,6 +5,8 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
+  timeout: 10000,
 });
 
 // Add a request interceptor to add the auth token to requests
@@ -27,13 +29,29 @@ api.interceptors.request.use(
 
 // Add a response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`✅ API Success: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+    return response;
+  },
   (error) => {
+    console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+    console.error('Error details:', {
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data
+    });
+    
     if (error.response?.status === 401) {
-      // Handle unauthorized access (e.g., clear local storage and redirect to login)
+      // Handle unauthorized access
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
+    
+    // Handle CORS errors
+    if (error.code === 'ERR_NETWORK') {
+      console.error('Network error - check if backend is running on http://localhost:8000');
+    }
+    
     return Promise.reject(error);
   }
 );
